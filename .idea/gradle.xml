@@ -3,6 +3,17 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/build-logic" name="build-logic">
+                <projects>
+                  <project path="$PROJECT_DIR$/build-logic" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
@@ -10,6 +21,36 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/build-logic" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/common/network" />
+            <option value="$PROJECT_DIR$/common/ui" />
+            <option value="$PROJECT_DIR$/common/utils" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/database" />
+            <option value="$PROJECT_DIR$/core/datastore" />
+            <option value="$PROJECT_DIR$/features" />
+            <option value="$PROJECT_DIR$/features/auth" />
+            <option value="$PROJECT_DIR$/features/auth/auth-api" />
+            <option value="$PROJECT_DIR$/features/auth/auth-impl" />
+            <option value="$PROJECT_DIR$/features/book" />
+            <option value="$PROJECT_DIR$/features/book/book-api" />
+            <option value="$PROJECT_DIR$/features/book/book-impl" />
+            <option value="$PROJECT_DIR$/features/catalog" />
+            <option value="$PROJECT_DIR$/features/catalog/catalog-api" />
+            <option value="$PROJECT_DIR$/features/catalog/catalog-impl" />
+            <option value="$PROJECT_DIR$/features/reader" />
+            <option value="$PROJECT_DIR$/features/reader/reader-api" />
+            <option value="$PROJECT_DIR$/features/reader/reader-impl" />
+            <option value="$PROJECT_DIR$/features/tests" />
+            <option value="$PROJECT_DIR$/features/tests/tests-api" />
+            <option value="$PROJECT_DIR$/features/tests/tests-impl" />
+            <option value="$PROJECT_DIR$/features/user-library" />
+            <option value="$PROJECT_DIR$/features/user-library/user-library-api" />
+            <option value="$PROJECT_DIR$/features/user-library/user-library-impl" />
+            <option value="$PROJECT_DIR$/features/user-profile" />
+            <option value="$PROJECT_DIR$/features/user-profile/user-profile-api" />
+            <option value="$PROJECT_DIR$/features/user-profile/user-profile-impl" />
           </set>
         </option>
       </GradleProjectSettings>
