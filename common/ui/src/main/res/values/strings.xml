@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Общие строки-->
+    <string name="show_all">Показать все</string>
+
+    <!--Названия табов в навигейшн баре-->
+    <string name="navigation_tab_home">Главная</string>
+    <string name="navigation_tab_library">Библиотека</string>
+    <string name="navigation_tab_collections">Коллекции</string>
+    <string name="navigation_tab_profile">Профиль</string>
+
+    <!--Тайтлы экранов в тулбаре-->
+    <string name="screen_title_home">Главная"</string>
+    <string name="screen_title_library">Моя библиотека"</string>
+    <string name="screen_title_collections">Мои коллекции"</string>
+    <string name="screen_title_profile">Мой профиль"</string>
+    <string name="screen_title_about_book">О книге"</string>
+
+    <!--Экран коллекции-->
+    <string name="favorite_collection_title">Избранное"</string>
+    <string name="open_collection_button_txt">Открыть"</string>
+    <string name="block_all_collections_header">Все коллекции"</string>
+</resources>

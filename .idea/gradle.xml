@@ -39,6 +39,9 @@
             <option value="$PROJECT_DIR$/features/catalog" />
             <option value="$PROJECT_DIR$/features/catalog/catalog-api" />
             <option value="$PROJECT_DIR$/features/catalog/catalog-impl" />
+            <option value="$PROJECT_DIR$/features/collections" />
+            <option value="$PROJECT_DIR$/features/collections/collections-api" />
+            <option value="$PROJECT_DIR$/features/collections/collections-impl" />
             <option value="$PROJECT_DIR$/features/reader" />
             <option value="$PROJECT_DIR$/features/reader/reader-api" />
             <option value="$PROJECT_DIR$/features/reader/reader-impl" />

@@ -62,4 +62,7 @@ include(
     ":features:user-library",
     ":features:user-library:user-library-api",
     ":features:user-library:user-library-impl",
+    ":features:collections",
+    ":features:collections:collections-impl",
+    ":features:collections:collections-api",
 )

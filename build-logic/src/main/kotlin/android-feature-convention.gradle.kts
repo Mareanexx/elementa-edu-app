@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Shimmer
     implementation(libs.compose.shimmer)
