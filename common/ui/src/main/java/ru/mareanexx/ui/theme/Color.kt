@@ -33,6 +33,11 @@ val cardBookCounter = Color(0xFF8F8EA5)
 
 // Мой профиль
 
+val username = Color(0xFF727093)
+val statisticsDivider = Color(0x80727093)
+val notesIcon = Color(0xFF8D8AB4)
+val descriptionBackground = Color(0xFFD9D7EF)
+
 // О книге
 
 // Чтение

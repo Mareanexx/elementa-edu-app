@@ -20,4 +20,11 @@
     <string name="favorite_collection_title">Избранное"</string>
     <string name="open_collection_button_txt">Открыть"</string>
     <string name="block_all_collections_header">Все коллекции"</string>
+
+    <!--Экран профиля-->
+    <string name="books_read_number">Книг прочитано"</string>
+    <string name="notes_published_number">Заметок опубликовано"</string>
+    <string name="tests_passed_number">Тестов пройдено"</string>
+    <string name="achievements_header">Достижения"</string>
+
 </resources>
