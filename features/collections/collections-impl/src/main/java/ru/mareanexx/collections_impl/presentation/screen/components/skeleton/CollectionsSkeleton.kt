@@ -1,4 +1,4 @@
-package ru.mareanexx.collections_impl.presentation.screen.components
+package ru.mareanexx.collections_impl.presentation.screen.components.skeleton
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
