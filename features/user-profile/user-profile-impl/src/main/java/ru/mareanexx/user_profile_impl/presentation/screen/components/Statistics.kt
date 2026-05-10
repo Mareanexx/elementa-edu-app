@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import ru.mareanexx.ui.theme.statisticsDivider
+import ru.mareanexx.ui.theme.divider
 import ru.mareanexx.ui.theme.titleMain
 import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 import ru.mareanexx.user_profile_impl.presentation.model.ProfileStatistics
@@ -43,13 +43,13 @@ fun ProfileStatistics(
         VerticalDivider(
             modifier = Modifier
                 .padding(horizontal = 25.dp)
-                .height(58.dp), color = statisticsDivider,
+                .height(58.dp), color = divider,
         )
         OneProfileStatistic(statistics.publishedNotesNumber, CommonUiR.string.notes_published_number, CommonUiR.drawable.stylus_note_icon)
         VerticalDivider(
             modifier = Modifier
                 .padding(horizontal = 25.dp)
-                .height(58.dp), color = statisticsDivider,
+                .height(58.dp), color = divider,
         )
         OneProfileStatistic(statistics.testsPassedNumber, CommonUiR.string.tests_passed_number, CommonUiR.drawable.trophy_icon)
     }

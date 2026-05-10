@@ -3,6 +3,7 @@ package ru.mareanexx.ui.components.content_header
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,12 +35,14 @@ fun BlockContentHeader(
     @StringRes buttonText: Int,
     @DrawableRes buttonIcon: Int? = null,
     onButtonClick: () -> Unit,
+    horizontalPaddings: PaddingValues = PaddingValues(start = HORIZONTAL_PADDING, end = 14.dp),
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 12.dp, start = HORIZONTAL_PADDING, end = 14.dp),
+            .padding(horizontalPaddings)
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

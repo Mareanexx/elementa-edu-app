@@ -41,7 +41,7 @@ fun MainTabsToolbar(
             text = stringResource(screenTitle),
             color = titleMain,
             modifier = Modifier.padding(vertical = 14.dp),
-            style = MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.headlineLarge,
         )
 
         Row(

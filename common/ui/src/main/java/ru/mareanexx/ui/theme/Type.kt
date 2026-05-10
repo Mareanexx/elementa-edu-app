@@ -72,6 +72,12 @@ val fontFamily = FontFamily(
 val ElementaTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = ExtraBoldNunito,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 44.sp,
+        lineHeight = 44.sp,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = ExtraBoldNunito,
         fontWeight = FontWeight.Black,
         fontSize = 28.sp,
         lineHeight = 30.sp,
@@ -82,6 +88,12 @@ val ElementaTypography = Typography(
         fontWeight = FontWeight.ExtraBold,
         fontSize = 24.sp,
         lineHeight = 26.sp,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = BoldNunito,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        lineHeight = 18.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = BoldNunito,

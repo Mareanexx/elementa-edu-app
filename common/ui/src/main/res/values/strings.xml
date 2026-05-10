@@ -2,6 +2,7 @@
 <resources>
     <!--Общие строки-->
     <string name="show_all">Показать все</string>
+    <string name="see_all">Смотреть все</string>
 
     <!--Названия табов в навигейшн баре-->
     <string name="navigation_tab_home">Главная</string>
@@ -26,5 +27,12 @@
     <string name="notes_published_number">Заметок опубликовано"</string>
     <string name="tests_passed_number">Тестов пройдено"</string>
     <string name="achievements_header">Достижения"</string>
+
+    <!--Экран книги-->
+    <string name="read_button_txt">Читать</string>
+    <string name="add_to_want_to_read">Добавить в «Хочу прочитать»</string>
+    <string name="block_description_header">Описание</string>
+    <string name="block_reviews_header">Рейтинг и отзывы</string>
+    <string name="full_description_button_txt">Полностью</string>
 
 </resources>
