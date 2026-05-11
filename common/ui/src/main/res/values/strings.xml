@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Общие строки-->
+    <string name="app_name">Elementa</string>
     <string name="show_all">Показать все</string>
     <string name="see_all">Смотреть все</string>
+    <string name="signup_button_txt">Зарегистрироваться</string>
+    <string name="login_button_txt">Войти</string>
+
+    <!--Приветственный экран-->
+    <string name="welcome_screen_title">Твой химический ридер</string>
+    <string name="welcome_screen_subtitle">Изучай химию через книги и литературу. Твой личный проводник в мир молекул</string>
+
+    <!--Экран авторизации и регистрации-->
+    <string name="screen_title_create_account">Создать аккаунт</string>
+    <string name="screen_title_log_in">Войти</string>
+    <string name="forget_password">Забыли пароль?</string>
+    <string name="already_have_account_question">Уже есть аккаунт?</string>
+    <string name="have_no_account_question">Нет аккаунта?</string>
+    <string name="another_way_to_login">Или войти через</string>
+    <string name="agreement_with_terms_of_use">Я согласен с условиями использования</string>
+
+    <string name="firstname_and_lastname">Имя и фамилия</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
 
     <!--Названия табов в навигейшн баре-->
     <string name="navigation_tab_home">Главная</string>

@@ -20,6 +20,9 @@ val navBackground = Color(0xFFFBFAFE)
 val selectedTab = Color(0xFF5A55D7)
 val deselectedTab = Color(0xFF706CAC)
 
+// Регистрация/Авторизация
+
+
 // Экран Главная
 
 // Моя библиотека
