@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.mareanexx.core"
+    namespace = "ru.mareanexx.core.database"
     baseAndroidConfig()
 
     defaultConfig {
@@ -30,17 +30,15 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.androidx.material3)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    // Room
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
 
-    // Data Store
-    implementation(libs.datastore.preferences)
+    // Hilt
+    implementation(libs.hilt.android.core)
+    implementation(libs.androidx.hilt.navigation.compose)
 
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
 }
