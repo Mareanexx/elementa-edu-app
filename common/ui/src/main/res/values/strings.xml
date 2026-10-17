@@ -56,4 +56,5 @@
     <string name="block_reviews_header">Рейтинг и отзывы</string>
     <string name="full_description_button_txt">Полностью</string>
 
+    <string name="welcome_screen_heading">%1$s: %2$s</string>
 </resources>

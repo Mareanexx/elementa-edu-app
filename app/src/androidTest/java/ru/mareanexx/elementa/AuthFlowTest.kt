@@ -67,7 +67,7 @@ class AuthFlowTest {
         field("Пароль").performTextInput("Elementa123")
         button("Войти").performScrollTo().performClick()
         waitFor("Главная")
-        rule.onNodeWithText("Главная").assertIsDisplayed()
+        rule.onAllNodesWithText("Главная").onFirst().assertIsDisplayed()
         button("Выйти").performClick()
         waitFor("Твой химический ридер")
     }

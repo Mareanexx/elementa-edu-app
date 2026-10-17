@@ -2,6 +2,7 @@ package ru.mareanex.auth_impl.data.local
 
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -23,6 +24,16 @@ internal class AuthSessionLocalDataSource(
                 }
         } catch (_: RuntimeException) { null }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun accessToken(): String? = withContext(Dispatchers.IO) {
+        try {
+            store.data.first()?.let { gson.fromJson(it, AuthSessionData::class.java) }
+                ?.takeIf { it.session.expiresAtMillis > now() }
+                ?.accessToken?.takeIf { it.isNotBlank() }
+        } catch (_: RuntimeException) {
+            null
+        }
+    }
 
     suspend fun save(session: AuthSessionData) = withContext(Dispatchers.IO) {
         store.save(gson.toJson(session))

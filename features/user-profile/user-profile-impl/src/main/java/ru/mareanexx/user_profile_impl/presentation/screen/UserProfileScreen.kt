@@ -1,68 +1,135 @@
 package ru.mareanexx.user_profile_impl.presentation.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import ru.mareanexx.ui.components.navigation_bar.BottomNavBar
-import ru.mareanexx.ui.components.navigation_bar.utils.MainNavigationTabs
-import ru.mareanexx.ui.components.toolbar.MainTabsToolbar
-import ru.mareanexx.ui.components.toolbar.model.ToolbarButton
-import ru.mareanexx.ui.theme.backgroundMain
-import ru.mareanexx.user_profile_impl.presentation.model.UserProfile
-import ru.mareanexx.user_profile_impl.presentation.screen.components.Achievements
-import ru.mareanexx.user_profile_impl.presentation.screen.components.MainProfileInfo
-import ru.mareanexx.user_profile_impl.presentation.screen.components.ProfileStatistics
-import ru.mareanexx.common_ui.R as CommonUiR
+import ru.mareanexx.ui.theme.*
+import ru.mareanexx.user_profile_impl.R
+import ru.mareanexx.user_profile_impl.presentation.profile.ProfileUiState
+import ru.mareanexx.user_profile_impl.presentation.achievements.*
+import ru.mareanexx.user_profile_impl.presentation.components.*
+import ru.mareanexx.user_profile_impl.presentation.screen.components.*
+import ru.mareanexx.user_profile_impl.presentation.screen.components.skeleton.UserProfileSkeleton
+import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
 fun UserProfileScreen(
-    userData: UserProfile,
-    modifier: Modifier = Modifier,
+    state: ProfileUiState,
+    achievements: AchievementsUiState,
+    onEdit: () -> Unit,
+    onSettings: () -> Unit,
+    onPhoto: () -> Unit,
+    onReload: () -> Unit,
+    onAchievementIntent: (AchievementsIntent) -> Unit,
+    onShowAll: () -> Unit,
+    achievementsExpanded: Boolean = false,
+    onCollapseAchievements: () -> Unit = {},
 ) {
-    Scaffold(
-        containerColor = backgroundMain,
-        topBar = {
-            MainTabsToolbar(
-                screenTitle = CommonUiR.string.screen_title_profile,
-                additionalButtons = ToolbarButton.AdditionalButton(
-                    icon = CommonUiR.drawable.edit_icon,
-                    onClick = { TODO() },
-                ),
-                settingsButton = ToolbarButton.SettingsButton(
-                    icon = CommonUiR.drawable.settings_icon,
-                    onClick = { TODO() },
-                ),
-            )
-        },
-        bottomBar = {
-            BottomNavBar(
-                selectedTab = MainNavigationTabs.Profile,
-            ) { TODO() }
-        },
-        modifier = modifier,
-    ) { topBarPaddings ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(topBarPaddings),
+    val strings = LocalResources.current
+    val density = LocalDensity.current
+    val reduceMotion = LocalAppUiPreferences.current.reduceMotion
+    val openAll by rememberUpdatedState(onShowAll)
+    var dragProgress by remember { mutableFloatStateOf(0f) }
+    var dragging by remember { mutableStateOf(false) }
+    val progress by animateFloatAsState(
+        targetValue = if (achievementsExpanded) 1f else if (dragging) dragProgress else 0f,
+        animationSpec = if (dragging || reduceMotion) snap() else tween(460, easing = FastOutSlowInEasing),
+        label = "Achievements expansion",
+    )
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val peek = 240.dp * density.fontScale.coerceIn(1f, 1.3f)
+        val sheetHeight = peek + (maxHeight - peek) * progress
+        val travel = with(density) { (maxHeight - peek).coerceAtLeast(1.dp).toPx() }
+        Scaffold(
+            modifier = if (progress > 0f) Modifier.clearAndSetSemantics {} else Modifier,
+            containerColor = backgroundMain,
+            topBar = {
+                ProfileTopBar(strings.getString(R.string.profile_title)) {
+                    IconButton(onClick = onEdit, enabled = state.profile != null && !state.avatarBusy) {
+                        Icon(painterResource(CommonR.drawable.edit_icon), strings.getString(R.string.profile_edit_description), tint = titleMain)
+                    }
+                    IconButton(onClick = onSettings, enabled = !state.avatarBusy) {
+                        Icon(painterResource(CommonR.drawable.settings_icon), strings.getString(R.string.profile_settings_description), tint = titleMain)
+                    }
+                }
+            },
+        ) { padding ->
+            Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(bottom = peek + 16.dp)) {
+                when {
+                    state.loading && state.profile == null -> UserProfileSkeleton()
+                    state.profile == null -> Box(Modifier.padding(16.dp)) { state.failure?.let { ProfileErrorBanner(it.error, onReload) } }
+                    else -> {
+                        Spacer(Modifier.height(8.dp))
+                        MainProfileInfo(state.profile, state.avatarBusy, onPhoto)
+                        Spacer(Modifier.height(22.dp))
+                        ProfileStatistics(state.profile.statistics)
+                        if (state.failure != null) Box(Modifier.padding(16.dp)) { ProfileErrorBanner(state.failure.error, onReload) }
+                    }
+                }
+            }
+        }
+        Surface(
+            color = backgroundSecondary,
+            shape = RoundedCornerShape(topStart = 30.dp * (1f - progress), topEnd = 30.dp * (1f - progress)),
+            shadowElevation = 8.dp * (1f - progress),
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(sheetHeight)
+                .testTag("achievements_sheet")
+                .pointerInput(achievementsExpanded, travel) {
+                    if (!achievementsExpanded) {
+                        var pulled = 0f
+                        detectVerticalDragGestures(
+                            onDragStart = { pulled = 0f; dragging = true },
+                            onVerticalDrag = { change, amount ->
+                                change.consume()
+                                pulled = (pulled - amount).coerceIn(0f, travel)
+                                dragProgress = pulled / travel
+                            },
+                            onDragEnd = {
+                                // Жест и кнопка управляют одной панелью: содержимое не заменяется навигационным экраном.
+                                if (pulled >= with(density) { 56.dp.toPx() }) openAll()
+                                dragging = false
+                            },
+                            onDragCancel = { dragging = false },
+                        )
+                    }
+                },
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-
-            MainProfileInfo(userData.mainData)
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            ProfileStatistics(userData.statistics)
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Achievements(userData.achievements)
+            Box(Modifier.fillMaxSize()) {
+                if (progress < 0.15f) Column(Modifier.graphicsLayer { alpha = (1f - progress / 0.15f).coerceIn(0f, 1f) }) {
+                    Box(Modifier.fillMaxWidth().height(20.dp).clickable(
+                        role = Role.Button,
+                        onClickLabel = strings.getString(R.string.profile_sheet_expand),
+                        onClick = onShowAll,
+                    ), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(width = 32.dp, height = 4.dp).background(username.copy(alpha = 0.4f), RoundedCornerShape(2.dp)))
+                    }
+                    Achievements(achievements, onAchievementIntent, onShowAll)
+                }
+                if (progress > 0.15f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = ((progress - 0.15f) / 0.5f).coerceIn(0f, 1f) }) {
+                    AchievementsScreen(achievements, onAchievementIntent, onCollapseAchievements)
+                }
+            }
         }
     }
 }

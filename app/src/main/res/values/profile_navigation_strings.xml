@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_expired">Сессия завершилась. Войди в аккаунт снова</string>
+    <string name="library_title">Библиотека</string>
+    <string name="library_empty">Здесь появятся твои книги</string>
+    <string name="collections_title">Коллекции</string>
+    <string name="collections_empty">Здесь появятся подборки твоих книг</string>
+</resources>

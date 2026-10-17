@@ -34,7 +34,7 @@ fun WelcomeScreen(
         Image(painterResource(R.drawable.welcome_screen_back), null, contentScale = ContentScale.Fit,
             alignment = Alignment.CenterEnd,
             modifier = Modifier.fillMaxWidth().height(360.dp))
-        Text("${stringResource(CommonR.string.app_name)}: ${stringResource(CommonR.string.welcome_screen_title)}",
+        Text(stringResource(CommonR.string.welcome_screen_heading, stringResource(CommonR.string.app_name), stringResource(CommonR.string.welcome_screen_title)),
             style = MaterialTheme.typography.displayLarge, fontSize = 36.sp, lineHeight = 38.sp,
             color = titleMain, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING))
         Text(stringResource(CommonR.string.welcome_screen_subtitle), style = MaterialTheme.typography.labelLarge,

@@ -18,6 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectable
+import ru.mareanexx.ui.theme.LocalAppUiPreferences
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -76,16 +82,18 @@ fun BottomNavBar(
 }
 
 @Composable
-fun NavItem(
+private fun RowScope.NavItem(
     @DrawableRes icon: Int,
     @StringRes label: Int,
     selected: Boolean,
     navigateTo: () -> Unit,
 ) {
     val scale = remember { Animatable(1f) }
+    val preferences = LocalAppUiPreferences.current
+    val haptics = LocalHapticFeedback.current
 
-    LaunchedEffect(selected) {
-        if (selected) {
+    LaunchedEffect(selected, preferences.reduceMotion) {
+        if (selected && !preferences.reduceMotion) {
             scale.snapTo(1f)
             scale.animateTo(
                 targetValue = 1.2f,
@@ -95,17 +103,23 @@ fun NavItem(
                 targetValue = 1.05f,
                 animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing),
             )
-        }
+        } else scale.snapTo(1f)
     }
 
     Column(
         modifier = Modifier
-            .widthIn(min = 86.dp)
+            .weight(1f)
             .padding(vertical = 5.dp)
-            .clickable(
+            .selectable(
+                selected = selected,
+                role = Role.Tab,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-            ) { navigateTo() }
+                onClick = {
+                    if (preferences.hapticFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    navigateTo()
+                },
+            )
             .graphicsLayer {
                 scaleX = scale.value
                 scaleY = scale.value

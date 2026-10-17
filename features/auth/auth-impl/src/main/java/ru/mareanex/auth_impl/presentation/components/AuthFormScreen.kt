@@ -36,6 +36,7 @@ fun AuthFormScreen(
     onSwitchMode: () -> Unit,
 ) {
     val registering = state.mode == AuthMode.Register
+    val loadingDescription = stringResource(R.string.auth_loading)
     val focus = LocalFocusManager.current
     BackHandler(enabled = state.isLoading) { /* Ожидаем завершения запроса перед уходом с экрана. */ }
     BoxWithConstraints(Modifier.fillMaxSize().background(authBackground).imePadding()) {
@@ -105,7 +106,7 @@ fun AuthFormScreen(
                     onClick = { focus.clearFocus(); onIntent(AuthIntent.Submit) },
                     enabled = state.canSubmit, isLoading = state.isLoading,
                     modifier = Modifier.fillMaxWidth().semantics {
-                        if (state.isLoading) stateDescription = "Отправляем данные"
+                        if (state.isLoading) stateDescription = loadingDescription
                     },
                 )
                 if (state.retryAfterSeconds > 0) {

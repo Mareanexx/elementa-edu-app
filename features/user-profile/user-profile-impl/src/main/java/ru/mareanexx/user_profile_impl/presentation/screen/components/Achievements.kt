@@ -1,102 +1,44 @@
 package ru.mareanexx.user_profile_impl.presentation.screen.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import ru.mareanexx.user_profile_impl.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import ru.mareanexx.ui.components.content_header.BlockContentHeader
-import ru.mareanexx.ui.theme.backgroundSecondary
-import ru.mareanexx.ui.theme.titleMain
-import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
-import ru.mareanexx.user_profile_impl.presentation.model.Achievement
-import ru.mareanexx.user_profile_impl.presentation.model.ProfileAchievements
-import ru.mareanexx.common_ui.R as CommonUiR
+import ru.mareanexx.ui.theme.*
+import ru.mareanexx.user_profile_impl.presentation.achievements.*
+import ru.mareanexx.user_profile_impl.presentation.components.ProfileErrorBanner
+import ru.mareanexx.user_profile_impl.presentation.screen.components.skeleton.AchievementStripSkeleton
+import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
-fun Achievements(
-    achievements: ProfileAchievements,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                color = backgroundSecondary,
-                shape = RoundedCornerShape(30.dp),
-            ),
-    ) {
-        BlockContentHeader(
-            titleRes = CommonUiR.string.achievements_header,
-            buttonText = CommonUiR.string.show_all,
-            buttonIcon = CommonUiR.drawable.keyboard_arrow_right_icon,
-            onButtonClick = { TODO() },
-        )
-
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = HORIZONTAL_PADDING),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            items(achievements.list) { achievement ->
-                Achievement(achievement)
+fun Achievements(state: AchievementsUiState, onIntent: (AchievementsIntent) -> Unit, onShowAll: () -> Unit) {
+    val strings = androidx.compose.ui.platform.LocalResources.current
+    Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(strings.getString(R.string.profile_achievements_title), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = titleMain)
+            TextButton(onClick = onShowAll) {
+                Text(strings.getString(R.string.profile_show_all), style = MaterialTheme.typography.labelMedium, color = bodySecondary)
+                Icon(painterResource(CommonR.drawable.keyboard_arrow_right_icon), null, Modifier.size(18.dp), tint = bodySecondary)
             }
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
-    }
-}
-
-@Composable
-private fun Achievement(
-    achievement: Achievement,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.widthIn(max = 85.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            painter = painterResource(achievement.image),
-            contentDescription = null,
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier.height(86.dp),
-        )
-
-        Text(
-            text = achievement.title,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleSmall,
-            color = titleMain,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-        )
-
-        Text(
-            text = achievement.receiptDate,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Medium,
-            color = titleMain,
-            fontSize = 10.sp,
-            lineHeight = 10.sp,
-        )
+        when {
+            state.loading -> AchievementStripSkeleton()
+            state.failure != null -> Box(Modifier.padding(horizontal = 16.dp)) { ProfileErrorBanner(state.failure.error) { onIntent(AchievementsIntent.Reload) } }
+            state.items.isEmpty() -> Text(strings.getString(R.string.profile_achievements_empty), Modifier.padding(16.dp), color = username)
+            else -> {
+                val preview = (state.items.filter { !it.isUnlocked }.take(1) + state.items.filter { it.isUnlocked }.takeLast(3) + state.items)
+                    .distinctBy { it.id }.take(4)
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("achievements_preview"), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    preview.forEach { item ->
+                        AchievementCard(item, compact = true, modifier = Modifier.weight(1f)) { onIntent(AchievementsIntent.SelectAchievement(item.id)) }
+                    }
+                }
+            }
+        }
     }
 }

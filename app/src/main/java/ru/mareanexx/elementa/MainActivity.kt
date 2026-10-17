@@ -10,7 +10,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repository = (application as ElementaApplication).container.authRepository
-        setContent { ElementaApp(repository) }
+        val container = (application as ElementaApplication).container
+        setContent { ElementaApp(container.authRepository, container::profileRepository) }
     }
 }
