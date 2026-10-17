@@ -16,6 +16,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
 import ru.mareanexx.ui.theme.titleMain
 import ru.mareanexx.ui.theme.username
 
@@ -30,6 +35,13 @@ fun ElementaTextField(
     @StringRes placeholderText: Int,
     trailingIcon: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
+    error: String? = null,
+    enabled: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    containerColor: Color = Color.Transparent,
+    unfocusedBorderColor: Color = username,
 ) {
     OutlinedTextField(
         value = value,
@@ -39,12 +51,29 @@ fun ElementaTextField(
         trailingIcon = trailingIcon,
         shape = RoundedCornerShape(16.dp),
         singleLine = true,
+        enabled = enabled,
+        isError = error != null,
+        supportingText = error?.let { message -> {
+            Text(message, color = Color(0xFFB4485D),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, lineHeight = 16.sp))
+        } },
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         modifier = modifier,
         textStyle = MaterialTheme.typography.displaySmall.copy(
             fontWeight = FontWeight.Medium,
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = username,
+            focusedContainerColor = containerColor,
+            unfocusedContainerColor = containerColor,
+            disabledContainerColor = containerColor,
+            errorContainerColor = containerColor,
+            errorBorderColor = Color(0xFFB4485D),
+            errorLabelColor = Color(0xFFB4485D),
+            errorLeadingIconColor = Color(0xFFB4485D),
+            errorTrailingIconColor = Color(0xFFB4485D),
+            unfocusedBorderColor = unfocusedBorderColor,
             focusedBorderColor = titleMain,
             unfocusedLeadingIconColor = username,
             focusedLeadingIconColor = titleMain,

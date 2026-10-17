@@ -6,5 +6,5 @@ object GlobalUiConsts {
     /**
      * Отступ от левого края до контента (аналогично от правого)
      */
-    val HORIZONTAL_PADDING = 20.dp
+    val HORIZONTAL_PADDING = 16.dp
 }

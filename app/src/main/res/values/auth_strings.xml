@@ -1,0 +1,7 @@
+<resources>
+    <string name="main_title">Главная</string>
+    <string name="sign_out">Выйти</string>
+    <string name="sign_out_failed">Не удалось выйти. Попробуй ещё раз.</string>
+    <string name="session_restore_failed">Не удалось загрузить данные входа на устройстве.</string>
+    <string name="retry">Повторить</string>
+</resources>

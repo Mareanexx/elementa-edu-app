@@ -22,6 +22,7 @@ import ru.mareanexx.ui.components.toolbar.model.ToolbarButton
 import ru.mareanexx.ui.modifiers.elementaClickable
 import ru.mareanexx.ui.theme.ElementaAppTheme
 import ru.mareanexx.ui.theme.titleMain
+import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 
 @Composable
 fun MainTabsToolbar(
@@ -33,7 +34,7 @@ fun MainTabsToolbar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = HORIZONTAL_PADDING),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

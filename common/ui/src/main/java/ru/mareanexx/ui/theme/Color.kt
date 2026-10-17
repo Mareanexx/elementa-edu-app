@@ -22,6 +22,8 @@ val deselectedTab = Color(0xFF706CAC)
 
 // Регистрация/Авторизация
 
+val authBackground = Color.White
+val authFieldBackground = Color(0xFFE7E7F1)
 
 // Экран Главная
 

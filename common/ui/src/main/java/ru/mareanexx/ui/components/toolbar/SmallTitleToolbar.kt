@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import ru.mareanexx.ui.components.toolbar.model.SmallTitleToolbarActionButton
 import ru.mareanexx.ui.modifiers.elementaClickable
 import ru.mareanexx.ui.theme.titleMain
+import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 import ru.mareanexx.common_ui.R as CommonUiR
 
 /**
@@ -34,7 +35,7 @@ fun SmallTitleToolbar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = HORIZONTAL_PADDING, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

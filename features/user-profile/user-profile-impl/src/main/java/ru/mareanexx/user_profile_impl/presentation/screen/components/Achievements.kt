@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import ru.mareanexx.ui.components.content_header.BlockContentHeader
 import ru.mareanexx.ui.theme.backgroundSecondary
 import ru.mareanexx.ui.theme.titleMain
+import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 import ru.mareanexx.user_profile_impl.presentation.model.Achievement
 import ru.mareanexx.user_profile_impl.presentation.model.ProfileAchievements
 import ru.mareanexx.common_ui.R as CommonUiR
@@ -51,7 +52,7 @@ fun Achievements(
         )
 
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 20.dp),
+            contentPadding = PaddingValues(horizontal = HORIZONTAL_PADDING),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(achievements.list) { achievement ->

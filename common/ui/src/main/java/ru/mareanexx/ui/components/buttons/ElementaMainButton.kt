@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.size
 import ru.mareanexx.ui.theme.bodySecondary
 import ru.mareanexx.ui.theme.onBackgroundMain
 
@@ -30,16 +32,23 @@ fun ElementaMainButton(
     textColor: Color = onBackgroundMain,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isLoading: Boolean = false,
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled && !isLoading,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.55f),
         ),
         contentPadding = PaddingValues(vertical = 14.dp),
         modifier = modifier,
     ) {
-        Text(
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = textColor,
+                strokeWidth = 2.dp)
+        } else Text(
             text = stringResource(textRes),
             style = MaterialTheme.typography.titleSmall,
             color = textColor,

@@ -32,7 +32,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
 
-    // Navigation
+    // Навигация
     implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)

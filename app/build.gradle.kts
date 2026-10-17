@@ -6,6 +6,15 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(project(":common:network"))
     implementation(project(":common:ui"))
     implementation(project(":common:utils"))
@@ -36,4 +45,15 @@ dependencies {
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
+}
+
+android {
+    defaultConfig {
+        // Указать настоящий HTTPS-адрес после подключения сервера.
+        buildConfigField("String", "AUTH_BASE_URL", "\"${providers.gradleProperty("elementa.authBaseUrl").getOrElse("https://api.elementa.example/")}\"")
+    }
+    buildTypes {
+        debug { buildConfigField("boolean", "MOCK_AUTH", "true") }
+        release { buildConfigField("boolean", "MOCK_AUTH", "false") }
+    }
 }

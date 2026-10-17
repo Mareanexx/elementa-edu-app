@@ -1,5 +1,7 @@
 package ru.mareanexx.collections_impl.presentation.screen.components.skeleton
 
+import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +28,7 @@ fun CollectionsSkeleton() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = HORIZONTAL_PADDING)
             .shimmer(shimmer),
     ) {
         // тулбар

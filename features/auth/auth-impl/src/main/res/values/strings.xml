@@ -1,0 +1,28 @@
+<resources>
+    <string name="auth_login_subtitle">С возвращением! Продолжим изучать химию?</string>
+    <string name="auth_register_subtitle">Создай аккаунт и собери свою библиотеку знаний</string>
+    <string name="auth_back">Назад</string>
+    <string name="auth_show_password">Показать пароль</string>
+    <string name="auth_hide_password">Скрыть пароль</string>
+    <string name="auth_password_hint">От 8 до 128 символов, хотя бы одна буква и цифра</string>
+    <string name="auth_username_hint">3–32 символа: латинские буквы, цифры и _. Начни с буквы</string>
+    <string name="auth_full_name">Имя и фамилия</string>
+    <string name="auth_required">Заполни это поле</string>
+    <string name="auth_invalid_name">Введи имя от 2 до 80 символов</string>
+    <string name="auth_invalid_username">От 3 до 32 латинских букв, цифр или _. Первый символ — буква</string>
+    <string name="auth_weak_password">Нужно 8–128 символов, хотя бы одна буква и цифра</string>
+    <string name="auth_password_mismatch">Пароли не совпадают</string>
+    <string name="auth_invalid_credentials">Неверное имя пользователя или пароль. Проверь данные и попробуй ещё раз.</string>
+    <string name="auth_username_taken">Это имя пользователя уже занято. Выбери другое.</string>
+    <string name="auth_invalid_field">Проверь введённые данные</string>
+    <string name="auth_account_disabled">Доступ к аккаунту ограничен. Обратись в поддержку.</string>
+    <string name="auth_offline">Не удалось подключиться. Проверь интернет и попробуй ещё раз.</string>
+    <string name="auth_timeout">Сервер не успел ответить. Попробуй ещё раз.</string>
+    <string name="auth_server_error">Сервис временно недоступен. Попробуй чуть позже.</string>
+    <string name="auth_too_many_requests">Слишком много попыток. Подожди немного перед повторным входом.</string>
+    <string name="auth_invalid_response">Не удалось обработать ответ сервера. Попробуй ещё раз позже.</string>
+    <string name="auth_storage_error">Не удалось сохранить вход на устройстве. Освободи место и попробуй ещё раз.</string>
+    <string name="auth_retry_after">Повторить через %1$d с</string>
+    <string name="auth_dismiss_error">Закрыть сообщение</string>
+    <string name="auth_loading">Отправляем данные…</string>
+</resources>

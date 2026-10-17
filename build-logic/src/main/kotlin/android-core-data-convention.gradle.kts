@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.hilt.android.core)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Test
+    // Тестирование
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
 }

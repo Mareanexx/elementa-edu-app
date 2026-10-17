@@ -35,7 +35,7 @@ fun BlockContentHeader(
     @StringRes buttonText: Int,
     @DrawableRes buttonIcon: Int? = null,
     onButtonClick: () -> Unit,
-    horizontalPaddings: PaddingValues = PaddingValues(start = HORIZONTAL_PADDING, end = 14.dp),
+    horizontalPaddings: PaddingValues = PaddingValues(horizontal = HORIZONTAL_PADDING),
     modifier: Modifier = Modifier,
 ) {
     Row(
