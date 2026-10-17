@@ -4,5 +4,7 @@
     <exclude domain="file" path="datastore/auth_session.preferences_pb" />
     <exclude domain="sharedpref" path="auth_demo_accounts.xml" />
     <exclude domain="sharedpref" path="profile_demo_server.xml" />
+    <exclude domain="sharedpref" path="collections_demo_server.xml" />
     <exclude domain="file" path="demo_avatars/" />
+    <exclude domain="file" path="demo_collection_covers/" />
 </full-backup-content>

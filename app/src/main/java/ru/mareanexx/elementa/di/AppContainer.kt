@@ -1,5 +1,8 @@
 package ru.mareanexx.elementa.di
 
+import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
+import ru.mareanexx.collections_impl.data.CollectionsRepositoryFactory
+import ru.mareanexx.collections_impl.data.configureCollectionsTransport
 import android.app.Application
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -40,6 +43,18 @@ class AppContainer(
             }
             .build()
         return ProfileRepositoryFactory.create(application, user.id, client, BuildConfig.AUTH_BASE_URL)
+    }
+
+    fun collectionsRepository(user: AuthUser): CollectionsRepository {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .callTimeout(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(false)
+            .addInterceptor(SessionAuthorizationInterceptor(AuthRepositoryFactory.tokenProvider(sessionStore)))
+            .also { configureCollectionsTransport(application, it, BuildConfig.MOCK_AUTH, user.id) }
+            .build()
+        return CollectionsRepositoryFactory.create(application, user.id, client, BuildConfig.AUTH_BASE_URL)
     }
 
     val authRepository: AuthRepository by lazy {

@@ -1,73 +1,35 @@
 package ru.mareanexx.collections_impl.presentation.screen.components.skeleton
 
-import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Devices.PIXEL_9_PRO
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import ru.mareanexx.ui.components.skeleton.BoxSkeleton
+import ru.mareanexx.ui.theme.LocalAppUiPreferences
+import ru.mareanexx.ui.theme.authFieldBackground
+import ru.mareanexx.collections_impl.presentation.screen.components.collectionCardHeight
 
-@Preview(device = PIXEL_9_PRO)
 @Composable
-fun CollectionsSkeleton() {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = HORIZONTAL_PADDING)
-            .shimmer(shimmer),
-    ) {
-        // тулбар
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            BoxSkeleton(height = 28, width = 220)
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                repeat(2) { BoxSkeleton(height = 30, width = 30) }
-            }
+internal fun CollectionsSkeleton(overview: Boolean = false, books: Boolean = false) {
+    val motion = !LocalAppUiPreferences.current.reduceMotion
+    Column(Modifier.fillMaxWidth().padding(16.dp).then(if (motion) Modifier.shimmer() else Modifier), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (overview) {
+            SkeletonBlock(Modifier.fillMaxWidth().height(188.dp), radius = 26)
+            SkeletonBlock(Modifier.width(180.dp).height(24.dp))
         }
-
-        Spacer(modifier = Modifier.padding(vertical = 16.dp))
-
-        BoxSkeleton(modifier = Modifier.fillMaxWidth().height(200.dp))
-
-        Spacer(modifier = Modifier.padding(vertical = 16.dp))
-
-        // хедер блока контента
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            BoxSkeleton(height = 20, width = 130)
-            BoxSkeleton(height = 20, width = 85)
-        }
-
-        // грид из карточек коллекций
-        repeat(4) {
-            Spacer(modifier = Modifier.height(14.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                repeat(2) {
-                    BoxSkeleton(modifier = Modifier.weight(0.5f).height(145.dp))
-                }
+        repeat(3) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBlock(Modifier.weight(1f).height(if (books) 144.dp else collectionCardHeight()), radius = if (books) 16 else 22)
+                if (!books) SkeletonBlock(Modifier.weight(1f).height(collectionCardHeight()), radius = 22)
             }
         }
     }
+}
+
+@Composable
+private fun SkeletonBlock(modifier: Modifier, radius: Int = 16) {
+    Box(modifier.clip(RoundedCornerShape(radius.dp)).background(authFieldBackground))
 }

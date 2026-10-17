@@ -33,8 +33,8 @@ internal fun AchievementsScreen(state: AchievementsUiState, onIntent: (Achieveme
                 color = bodySecondary, style = MaterialTheme.typography.displaySmall)
             AchievementTabs(pager, categories)
             when {
-                state.loading -> AchievementGridSkeleton()
-                state.failure != null -> Box(Modifier.padding(16.dp)) { ProfileErrorBanner(state.failure.error) { onIntent(AchievementsIntent.Reload) } }
+                state.loading && !state.loaded -> AchievementGridSkeleton()
+                state.failure != null && state.items.isEmpty() -> Box(Modifier.padding(16.dp)) { ProfileErrorBanner(state.failure.error) { onIntent(AchievementsIntent.Reload) } }
                 else -> HorizontalPager(state = pager, modifier = Modifier.weight(1f).fillMaxWidth().testTag("achievements_pager"), key = { it }) { page ->
                     AchievementGrid(state, categories[page], page == pager.currentPage, onIntent)
                 }

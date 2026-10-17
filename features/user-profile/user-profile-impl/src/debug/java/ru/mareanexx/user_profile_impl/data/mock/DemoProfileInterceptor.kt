@@ -26,7 +26,7 @@ internal class DemoProfileInterceptor(
         val request = chain.request()
         val path = request.url.encodedPath
         if (!path.startsWith("/api/v1/users/me")) return chain.proceed(request)
-        Thread.sleep(450)
+        Thread.sleep(controls.getInt("delay_ms", 450).coerceIn(0, 5000).toLong())
         if (request.header("Authorization").isNullOrBlank()) return error(request, 401, "UNAUTHORIZED")
         val status = controls.getInt("next_status", 0)
         if (status != 0) {

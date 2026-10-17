@@ -10,11 +10,19 @@ internal class FakeProfileRepository : ProfileRepository {
     var profile = UserProfile("1", "Мария Химик", "chemist", "Привет", null, ProfileStatistics(24, 41, 8))
     var failure: ProfileFailure? = null
     var gate: CompletableDeferred<Unit>? = null
+    var achievementGate: CompletableDeferred<Unit>? = null
+    var achievementFailure: ProfileFailure? = null
+    var achievements = emptyList<Achievement>()
+    var achievementCalls = 0
     var profileCalls = 0
     var settingsCalls = 0
     var avatarCalls = 0
     override suspend fun getProfile() = ProfileResult.Success(profile)
-    override suspend fun getAchievements() = ProfileResult.Success(emptyList<Achievement>())
+    override suspend fun getAchievements(): ProfileResult<List<Achievement>> {
+        achievementCalls++
+        achievementGate?.await()
+        return achievementFailure?.let { ProfileResult.Failure(it) } ?: ProfileResult.Success(achievements)
+    }
     override suspend fun getSettings() = ProfileResult.Success(settings.value)
     override suspend fun clearImageCache() = ProfileResult.Success(Unit)
     override suspend fun updateProfile(form: ProfileEditForm): ProfileResult<UserProfile> {

@@ -1,5 +1,7 @@
 package ru.mareanexx.user_profile_impl.presentation
 
+import ru.mareanexx.ui.components.feedback.SyncIndicator
+import androidx.compose.ui.Alignment
 import ru.mareanexx.user_profile_impl.R
 import android.content.ActivityNotFoundException
 import android.net.Uri
@@ -142,9 +144,10 @@ fun ProfileRoute(
     }
 
     Scaffold(containerColor = Color.Transparent, snackbarHost = { SnackbarHost(snackbar) { data -> Snackbar(data, shape = RoundedCornerShape(16.dp)) } }) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
         AnimatedContent(
             targetState = if (destination == ProfileDestination.Achievements) ProfileDestination.Overview else destination,
-            modifier = Modifier.fillMaxSize().padding(padding).clipToBounds(),
+            modifier = Modifier.fillMaxSize().clipToBounds(),
             transitionSpec = {
                 val forward = initialState == ProfileDestination.Overview
                 val enter = when {
@@ -181,6 +184,11 @@ fun ProfileRoute(
                     }
                 }
             }
+        }
+        SyncIndicator(
+            visible = ((state.loading && state.profile != null) || achievementState.refreshing) && snackbar.currentSnackbarData == null,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
+        )
         }
     }
     achievementState.selected?.let { item -> AchievementDialog(item) { achievements.accept(AchievementsIntent.DismissAchievement) } }

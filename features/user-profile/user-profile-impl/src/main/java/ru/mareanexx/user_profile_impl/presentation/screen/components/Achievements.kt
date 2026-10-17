@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ru.mareanexx.ui.theme.*
 import ru.mareanexx.user_profile_impl.presentation.achievements.*
 import ru.mareanexx.user_profile_impl.presentation.components.ProfileErrorBanner
@@ -20,15 +21,19 @@ fun Achievements(state: AchievementsUiState, onIntent: (AchievementsIntent) -> U
     val strings = androidx.compose.ui.platform.LocalResources.current
     Column(Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(strings.getString(R.string.profile_achievements_title), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = titleMain)
+            Column(Modifier.weight(1f)) {
+                Text(strings.getString(R.string.profile_achievements_title), style = MaterialTheme.typography.titleSmall, color = titleMain)
+                if (state.loaded) Text(strings.getString(R.string.profile_achievements_count, state.items.count { it.isUnlocked }, state.items.size),
+                    Modifier.padding(top = 2.dp), style = MaterialTheme.typography.labelSmall, fontSize = 11.sp, color = username)
+            }
             TextButton(onClick = onShowAll) {
                 Text(strings.getString(R.string.profile_show_all), style = MaterialTheme.typography.labelMedium, color = bodySecondary)
                 Icon(painterResource(CommonR.drawable.keyboard_arrow_right_icon), null, Modifier.size(18.dp), tint = bodySecondary)
             }
         }
         when {
-            state.loading -> AchievementStripSkeleton()
-            state.failure != null -> Box(Modifier.padding(horizontal = 16.dp)) { ProfileErrorBanner(state.failure.error) { onIntent(AchievementsIntent.Reload) } }
+            state.loading && !state.loaded -> AchievementStripSkeleton()
+            state.failure != null && state.items.isEmpty() -> Box(Modifier.padding(horizontal = 16.dp)) { ProfileErrorBanner(state.failure.error) { onIntent(AchievementsIntent.Reload) } }
             state.items.isEmpty() -> Text(strings.getString(R.string.profile_achievements_empty), Modifier.padding(16.dp), color = username)
             else -> {
                 val preview = (state.items.filter { !it.isUnlocked }.take(1) + state.items.filter { it.isUnlocked }.takeLast(3) + state.items)

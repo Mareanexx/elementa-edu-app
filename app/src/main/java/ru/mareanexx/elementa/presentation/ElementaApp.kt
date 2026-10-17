@@ -1,5 +1,6 @@
 package ru.mareanexx.elementa.presentation
 
+import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -31,7 +32,7 @@ import ru.mareanexx.ui.theme.*
 import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 
 @Composable
-fun ElementaApp(repository: AuthRepository, profileRepository: (AuthUser) -> ProfileRepository) {
+fun ElementaApp(repository: AuthRepository, profileRepository: (AuthUser) -> ProfileRepository, collectionsRepository: (AuthUser) -> CollectionsRepository) {
     val sessionViewModel: SessionViewModel = viewModel(factory = viewModelFactory { initializer { SessionViewModel(repository) } })
     val session by sessionViewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
@@ -71,7 +72,7 @@ fun ElementaApp(repository: AuthRepository, profileRepository: (AuthUser) -> Pro
                         }
                     }
                     is SessionState.SignedIn -> SignedInContent(
-                        current, profileRepository,
+                        current, profileRepository, collectionsRepository,
                         onSessionExpired = {
                             sessionViewModel.accept(SessionIntent.SignOut)
                             scope.launch { snackbar.showSnackbar(strings.getString(R.string.session_expired)) }

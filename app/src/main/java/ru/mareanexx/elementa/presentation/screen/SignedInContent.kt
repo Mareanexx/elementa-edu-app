@@ -1,5 +1,7 @@
 package ru.mareanexx.elementa.presentation.screen
 
+import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
+import ru.mareanexx.collections_impl.presentation.CollectionsRoute
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -30,13 +32,16 @@ import ru.mareanexx.user_profile_impl.presentation.ProfileRoute
 internal fun SignedInContent(
     state: SessionState.SignedIn,
     createRepository: (AuthUser) -> ProfileRepository,
+    createCollectionsRepository: (AuthUser) -> CollectionsRepository,
     onSessionExpired: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     val repository = remember(state.user.id) { createRepository(state.user) }
+    val collectionsRepository = remember(state.user.id) { createCollectionsRepository(state.user) }
     val settings by repository.settings.collectAsStateWithLifecycle(initialValue = AppSettings())
     var tab by rememberSaveable(state.user.id) { mutableStateOf(MainNavigationTabs.Home) }
     var showBottomBar by rememberSaveable { mutableStateOf(true) }
+    var collectionsScreenColor by remember { mutableStateOf(backgroundMain) }
     var profileScreenColor by remember { mutableStateOf(backgroundMain) }
     val density = LocalDensity.current
     val view = LocalView.current
@@ -51,14 +56,18 @@ internal fun SignedInContent(
         LocalDensity provides Density(density.density, density.fontScale * settings.textScale),
         LocalAppUiPreferences provides AppUiPreferences(settings.reduceMotion, settings.hapticFeedback),
     ) {
-        val screenColor = if (tab == MainNavigationTabs.Profile) profileScreenColor else backgroundMain
+        val screenColor = when (tab) {
+            MainNavigationTabs.Profile -> profileScreenColor
+            MainNavigationTabs.Collections -> collectionsScreenColor
+            else -> backgroundMain
+        }
         Box(Modifier.fillMaxSize().background(screenColor)) {
             Scaffold(
                 modifier = Modifier.safeDrawingPadding(),
                 containerColor = backgroundMain,
                 bottomBar = {
                     AnimatedVisibility(
-                        visible = showBottomBar || tab != MainNavigationTabs.Profile,
+                        visible = showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections),
                         enter = expandVertically(tween(if (settings.reduceMotion) 0 else 460), expandFrom = Alignment.Bottom),
                         exit = shrinkVertically(tween(if (settings.reduceMotion) 0 else 460), shrinkTowards = Alignment.Bottom),
                     ) {
@@ -79,12 +88,16 @@ internal fun SignedInContent(
                             onScreenColorChanged = { profileScreenColor = it },
                         )
                         MainNavigationTabs.Library -> EmptySection(strings.getString(R.string.library_title), strings.getString(R.string.library_empty))
-                        MainNavigationTabs.Collections -> EmptySection(strings.getString(R.string.collections_title), strings.getString(R.string.collections_empty))
+                        MainNavigationTabs.Collections -> CollectionsRoute(
+                            collectionsRepository, state.user.id, onSessionExpired,
+                            onRootScreenChanged = { showBottomBar = it },
+                            onScreenColorChanged = { collectionsScreenColor = it },
+                        )
                     }
                 }
             }
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                .background(if (showBottomBar || tab != MainNavigationTabs.Profile) navBackground else screenColor))
+                .background(if (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections)) navBackground else screenColor))
         }
     }
 }

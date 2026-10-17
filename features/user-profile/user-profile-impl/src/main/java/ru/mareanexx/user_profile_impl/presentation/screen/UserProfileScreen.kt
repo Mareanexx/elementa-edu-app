@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +21,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
@@ -31,7 +31,6 @@ import ru.mareanexx.user_profile_impl.presentation.achievements.*
 import ru.mareanexx.user_profile_impl.presentation.components.*
 import ru.mareanexx.user_profile_impl.presentation.screen.components.*
 import ru.mareanexx.user_profile_impl.presentation.screen.components.skeleton.UserProfileSkeleton
-import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
 fun UserProfileScreen(
@@ -65,14 +64,7 @@ fun UserProfileScreen(
             modifier = if (progress > 0f) Modifier.clearAndSetSemantics {} else Modifier,
             containerColor = backgroundMain,
             topBar = {
-                ProfileTopBar(strings.getString(R.string.profile_title)) {
-                    IconButton(onClick = onEdit, enabled = state.profile != null && !state.avatarBusy) {
-                        Icon(painterResource(CommonR.drawable.edit_icon), strings.getString(R.string.profile_edit_description), tint = titleMain)
-                    }
-                    IconButton(onClick = onSettings, enabled = !state.avatarBusy) {
-                        Icon(painterResource(CommonR.drawable.settings_icon), strings.getString(R.string.profile_settings_description), tint = titleMain)
-                    }
-                }
+                ProfileOverviewHeader(state.profile != null && !state.avatarBusy, !state.avatarBusy, onEdit, onSettings)
             },
         ) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(bottom = peek + 16.dp)) {
@@ -82,7 +74,7 @@ fun UserProfileScreen(
                     else -> {
                         Spacer(Modifier.height(8.dp))
                         MainProfileInfo(state.profile, state.avatarBusy, onPhoto)
-                        Spacer(Modifier.height(22.dp))
+                        Spacer(Modifier.height(20.dp))
                         ProfileStatistics(state.profile.statistics)
                         if (state.failure != null) Box(Modifier.padding(16.dp)) { ProfileErrorBanner(state.failure.error, onReload) }
                     }
@@ -92,7 +84,6 @@ fun UserProfileScreen(
         Surface(
             color = backgroundSecondary,
             shape = RoundedCornerShape(topStart = 30.dp * (1f - progress), topEnd = 30.dp * (1f - progress)),
-            shadowElevation = 8.dp * (1f - progress),
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(sheetHeight)
                 .testTag("achievements_sheet")
                 .pointerInput(achievementsExpanded, travel) {
@@ -118,6 +109,8 @@ fun UserProfileScreen(
             Box(Modifier.fillMaxSize()) {
                 if (progress < 0.15f) Column(Modifier.graphicsLayer { alpha = (1f - progress / 0.15f).coerceIn(0f, 1f) }) {
                     Box(Modifier.fillMaxWidth().height(20.dp).clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
                         role = Role.Button,
                         onClickLabel = strings.getString(R.string.profile_sheet_expand),
                         onClick = onShowAll,

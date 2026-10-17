@@ -17,7 +17,7 @@ class AchievementsViewModel(
 
     fun accept(intent: AchievementsIntent) {
         when (intent) {
-            AchievementsIntent.Reload -> if (!mutable.value.loading) load()
+            AchievementsIntent.Reload -> if (!mutable.value.loading && !mutable.value.refreshing) load()
             is AchievementsIntent.SelectCategory -> mutable.update { it.copy(category = intent.category) }
             is AchievementsIntent.SelectAchievement -> mutable.update { it.copy(selectedId = intent.id) }
             AchievementsIntent.DismissAchievement -> mutable.update { it.copy(selectedId = null) }
@@ -25,11 +25,11 @@ class AchievementsViewModel(
     }
 
     private fun load() {
-        mutable.update { it.copy(loading = true, failure = null) }
+        mutable.update { it.copy(loading = !it.loaded, refreshing = it.loaded, failure = null) }
         viewModelScope.launch {
             when (val result = repository.getAchievements()) {
-                is ProfileResult.Success -> mutable.update { it.copy(items = result.value, loading = false) }
-                is ProfileResult.Failure -> mutable.update { it.copy(failure = result.reason, loading = false) }
+                is ProfileResult.Success -> mutable.update { it.copy(items = result.value, loading = false, refreshing = false, loaded = true) }
+                is ProfileResult.Failure -> mutable.update { it.copy(failure = result.reason, loading = false, refreshing = false) }
             }
         }
     }

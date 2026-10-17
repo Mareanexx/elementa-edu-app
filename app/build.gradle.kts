@@ -28,6 +28,9 @@ dependencies {
     implementation(project(":features:book:book-api"))
     implementation(project(":features:book:book-impl"))
 
+    implementation(project(":features:collections:collections-api"))
+    implementation(project(":features:collections:collections-impl"))
+
     implementation(project(":features:catalog:catalog-api"))
     implementation(project(":features:catalog:catalog-impl"))
 

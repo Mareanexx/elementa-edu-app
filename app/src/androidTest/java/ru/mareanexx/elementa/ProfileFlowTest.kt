@@ -375,4 +375,21 @@ class ProfileFlowTest {
         paint.color = Color.rgb(230, 145, 155)
         canvas.drawCircle(600f, 300f, 180f, paint)
     }
+    @Test fun returningToProfileKeepsAchievementsAndUsesFloatingSync() {
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("achievements_preview").fetchSemanticsNodes().isNotEmpty() }
+        val before = rule.onNodeWithTag("achievements_preview").fetchSemanticsNode().boundsInRoot
+        button("Главная").performClick()
+        context.getSharedPreferences("profile_mock_controls", Context.MODE_PRIVATE).edit().putInt("delay_ms", 1500).commit()
+        button("Профиль").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("content_sync_indicator").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("achievements_preview").assertIsDisplayed()
+        rule.onNodeWithTag("achievement_strip_skeleton").assertDoesNotExist()
+        val tip = rule.onNodeWithTag("content_sync_indicator").fetchSemanticsNode().boundsInRoot
+        val bar = rule.onNodeWithTag("bottom_navigation").fetchSemanticsNode().boundsInRoot
+        assertEquals(with(rule.density) { 12.dp.toPx() }, bar.top - tip.bottom, 2f)
+        capture("profile-floating-sync")
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("content_sync_indicator").fetchSemanticsNodes().isEmpty() }
+        assertEquals(before, rule.onNodeWithTag("achievements_preview").fetchSemanticsNode().boundsInRoot)
+    }
+
 }

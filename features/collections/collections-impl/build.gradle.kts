@@ -10,4 +10,10 @@ android {
 
 dependencies {
     implementation(project(":common:ui"))
+    implementation(project(":features:collections:collections-api"))
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.okhttp)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockwebserver)
 }

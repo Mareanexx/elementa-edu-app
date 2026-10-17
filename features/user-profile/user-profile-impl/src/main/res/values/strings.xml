@@ -43,6 +43,7 @@
     <string name="profile_achievements_received_empty">Первое достижение уже близко</string>
     <string name="profile_achievements_locked_empty">В этой категории всё получено!</string>
     <string name="profile_title">Мой профиль</string>
+    <string name="profile_statistics_title">Твой прогресс</string>
     <string name="profile_edit_description">Редактировать профиль</string>
     <string name="profile_settings_description">Настройки приложения</string>
     <string name="profile_loading">Собираем твой профиль</string>
