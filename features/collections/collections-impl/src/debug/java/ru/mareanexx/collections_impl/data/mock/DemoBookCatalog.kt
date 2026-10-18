@@ -5,11 +5,14 @@ import ru.mareanexx.collections_impl.R
 
 /** Данные демонстрационной библиотеки имитируют содержимое ответа сервера. */
 internal object DemoBookCatalog {
-    fun books(context: android.content.Context): List<CollectionBookDto> {
+    fun books(context: android.content.Context, userId: String? = null): List<CollectionBookDto> {
         val ratings = context.getSharedPreferences("book_rating_mock_cache", android.content.Context.MODE_PRIVATE)
         return items.map { book ->
             val cached = ratings.getString(book.id, null)?.let { runCatching { com.google.gson.Gson().fromJson(it, BookRatingDto::class.java) }.getOrNull() }
-            if (cached == null) book else book.copy(rating = cached)
+            val progress = context.getSharedPreferences("collections_demo_server", android.content.Context.MODE_PRIVATE)
+            val key = "progress_${userId}_${book.id}"
+            val read = if (userId != null && progress.contains(key)) progress.getInt(key, 0) else book.pagesRead
+            book.copy(rating = cached ?: book.rating, pagesRead = read)
         }
     }
 

@@ -115,6 +115,7 @@
     <string name="book_reader_hint">Откроем книгу с нужной страницы, когда подключим экран чтения</string>
     <string name="book_reader_page">Начальная страница: %1$d</string>
     <string name="book_reader_back">Вернуться к книге</string>
+    <string name="book_reader_library">Вернуться в библиотеку</string>
     <string name="book_error_offline">Нет подключения. Проверь интернет и попробуй ещё раз</string>
     <string name="book_error_timeout">Сервер не успел ответить. Попробуй ещё раз</string>
     <string name="book_error_session">Сессия завершилась. Войди в аккаунт снова</string>

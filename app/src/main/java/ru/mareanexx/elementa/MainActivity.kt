@@ -11,6 +11,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val container = (application as ElementaApplication).container
-        setContent { ElementaApp(container.authRepository, container::profileRepository, container::collectionsRepository, container::bookRepository) }
+        setContent { ElementaApp(container.authRepository, container::profileRepository, container::collectionsRepository, container::bookRepository, container::libraryRepository) }
     }
 }

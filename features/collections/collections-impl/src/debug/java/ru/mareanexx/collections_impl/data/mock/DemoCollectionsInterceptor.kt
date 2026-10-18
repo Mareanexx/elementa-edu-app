@@ -14,7 +14,7 @@ import java.util.UUID
 
 internal class DemoCollectionsInterceptor(
     private val context: Context,
-    userId: String,
+    private val userId: String,
 ) : Interceptor {
     private val covers = DemoCollectionCoverStore(context, userId)
     private val store = DemoCollectionsStore(context, userId)
@@ -60,7 +60,7 @@ internal class DemoCollectionsInterceptor(
             }
             return error(request, 405, "METHOD_NOT_ALLOWED")
         }
-        if (path == "/api/v1/users/me/library/books") return json(request, 200, CollectionBooksResponse(DemoBookCatalog.books(context)))
+        if (path == "/api/v1/users/me/library/books") return json(request, 200, CollectionBooksResponse(DemoBookCatalog.books(context, userId)))
         val records = store.read()
         val parts = path.removePrefix(base).trim('/').split('/').filter(String::isNotEmpty)
         val current = parts.firstOrNull()?.let { id -> records.firstOrNull { it.id == id } }
@@ -86,7 +86,7 @@ internal class DemoCollectionsInterceptor(
         }
         if (parts.getOrNull(1) == "books") {
             val collection = requireNotNull(current)
-            if (parts.size == 2 && request.method == "GET") return json(request, 200, CollectionBooksResponse(collection.bookIds.map { id -> DemoBookCatalog.books(context).first { it.id == id } }))
+            if (parts.size == 2 && request.method == "GET") return json(request, 200, CollectionBooksResponse(collection.bookIds.map { id -> DemoBookCatalog.books(context, userId).first { it.id == id } }))
             if (parts.size == 2 && request.method == "POST") {
                 val ids = runCatching { gson.fromJson(body(request), CollectionBooksRequest::class.java).bookIds }.getOrNull()
                     ?: return error(request, 422, "INVALID_BOOKS")

@@ -103,7 +103,7 @@ private fun DialogHeader(title: String, onClose: () -> Unit, enabled: Boolean = 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BookCollectionsSheet(state: BookCollectionsState, onIntent: (BookIntent) -> Unit) {
+internal fun BookCollectionsSheet(state: BookCollectionsState, onIntent: (BookIntent) -> Unit) {
     val strings = LocalResources.current
     val latestBusy by rememberUpdatedState(state.saving)
     val canChange = remember { { _: SheetValue -> !latestBusy } }

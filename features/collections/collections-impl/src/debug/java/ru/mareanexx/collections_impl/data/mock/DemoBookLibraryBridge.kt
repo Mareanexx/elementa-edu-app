@@ -10,10 +10,17 @@ import ru.mareanexx.collections_impl.data.remote.mapper.CollectionMapper
 /** Только для debug: оба HTTP-мока используют одну библиотеку и одни системные подборки. */
 class DemoBookLibraryBridge(
     private val context: Context,
-    userId: String,
+    private val userId: String,
 ) {
     private val store = DemoCollectionsStore(context, userId)
-    fun book(id: String): CollectionBook? = DemoBookCatalog.books(context).firstOrNull { it.id == id }?.let(CollectionMapper::book)
+    fun book(id: String): CollectionBook? = DemoBookCatalog.books(context, userId).firstOrNull { it.id == id }?.let(CollectionMapper::book)
+    fun books(): List<CollectionBook> = DemoBookCatalog.books(context, userId).map(CollectionMapper::book)
+    fun setPagesRead(bookId: String, read: Int) = synchronized(DemoCollectionsStore.lock) {
+        val book = requireNotNull(book(bookId))
+        require(read in 0..book.pages)
+        if (!context.getSharedPreferences("collections_demo_server", Context.MODE_PRIVATE).edit()
+                .putInt("progress_${userId}_$bookId", read).commit()) throw java.io.IOException("Не удалось сохранить прогресс чтения")
+    }
     fun collections(): List<BookCollection> = synchronized(DemoCollectionsStore.lock) {
         store.read().map { item -> BookCollection(item.id, item.name, CollectionMapper.cover(item.coverKey), item.bookIds.size, item.favorite, isReadingList = item.readingList) }
     }

@@ -156,4 +156,11 @@ class BookViewModelTest {
         assertNull(model.state.value.book!!.myReview)
         assertEquals(BookPage.Detail, model.state.value.page)
     }
+    @Test fun `прямой вход в чтение не проходит через экран описания`() = runTest(dispatcher) {
+        val model = BookViewModel("book_1", FakeBookRepository(), BookPage.Reader)
+        assertEquals(BookPage.Reader, model.state.value.page)
+        runCurrent()
+        assertEquals(BookPage.Reader, model.state.value.page)
+        assertEquals(48, model.state.value.book!!.pagesRead)
+    }
 }

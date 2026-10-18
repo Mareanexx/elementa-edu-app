@@ -15,8 +15,9 @@ import java.util.UUID
 class BookViewModel(
     private val bookId: String,
     private val repository: BookRepository,
+    private val initialPage: BookPage = BookPage.Detail,
 ) : ViewModel() {
-    private val mutable = MutableStateFlow(BookUiState())
+    private val mutable = MutableStateFlow(BookUiState(page = initialPage))
     val state = mutable.asStateFlow()
     private val events = Channel<BookEffect>(Channel.BUFFERED)
     val effects = events.receiveAsFlow()
@@ -32,7 +33,7 @@ class BookViewModel(
         if (intent == BookIntent.SessionExpired) {
             bookJob?.cancel(); reviewsJob?.cancel(); repliesJob?.cancel(); collectionsJob?.cancel()
             mutationJobs.forEach { it.cancel() }
-            mutable.value = BookUiState(loading = false)
+            mutable.value = BookUiState(loading = false, page = initialPage)
             return
         }
         if (current.mutationBusy && intent != BookIntent.DismissNotice) return

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import ru.mareanexx.book_api.domain.model.BookEntry
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -30,15 +32,32 @@ import ru.mareanexx.ui.components.feedback.SyncIndicator
 import ru.mareanexx.ui.theme.*
 
 @Composable
-fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClose: () -> Unit, onSessionExpired: () -> Unit) {
-    val model: BookViewModel = viewModel(key = "book_${userId}_$bookId", factory = viewModelFactory { initializer { BookViewModel(bookId, repository) } })
+fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClose: () -> Unit, onSessionExpired: () -> Unit, entry: BookEntry = BookEntry.Details) {
+    val model: BookViewModel = viewModel(key = "book_${userId}_${bookId}_${entry.name}", factory = viewModelFactory {
+        initializer { BookViewModel(bookId, repository, if (entry == BookEntry.Reader) BookPage.Reader else BookPage.Detail) }
+    })
     val state by model.state.collectAsStateWithLifecycle()
+    var entryHandled by rememberSaveable(bookId, userId, entry) { mutableStateOf(false) }
+    LaunchedEffect(model, entry, state.book?.id) {
+        if (!entryHandled && state.book != null) {
+            when (entry) {
+                BookEntry.Details -> Unit
+                BookEntry.Reader -> Unit
+                BookEntry.Collections -> model.accept(BookIntent.OpenCollections)
+            }
+            entryHandled = true
+        }
+    }
     val strings = LocalResources.current
     val preferences = LocalAppUiPreferences.current
     val snackbar = remember { SnackbarHostState() }
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val close by rememberUpdatedState(onClose)
+    fun back() {
+        if (entry == BookEntry.Reader && model.state.value.page == BookPage.Reader) close()
+        else model.accept(BookIntent.Back)
+    }
     LaunchedEffect(model) { model.effects.collect { if (it == BookEffect.Close) close() } }
     LaunchedEffect(repository) { model.accept(BookIntent.Reload) }
     LaunchedEffect(state) {
@@ -66,7 +85,7 @@ fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClos
         snackbar.showSnackbar(message)
         model.accept(BookIntent.DismissNotice)
     }
-    BackHandler { model.accept(BookIntent.Back) }
+    BackHandler { back() }
     Scaffold(containerColor = backgroundMain, snackbarHost = { SnackbarHost(snackbar) { Snackbar(it, shape = RoundedCornerShape(16.dp)) } }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AnimatedContent(state.page, Modifier.fillMaxSize().clipToBounds(), transitionSpec = {
@@ -82,7 +101,8 @@ fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClos
                     BookPage.Detail -> BookScreen(shown, model::accept) { isbn -> scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(strings.getString(R.string.book_isbn), isbn))); snackbar.showSnackbar(strings.getString(R.string.book_isbn_copied)) } }
                     BookPage.Reviews -> ReviewsScreen(shown, model::accept)
                     BookPage.Thread -> ReviewThreadScreen(shown, model::accept)
-                    BookPage.Reader -> shown.book?.let { ReaderEntryScreen(it) { model.accept(BookIntent.Back) } }
+                    BookPage.Reader -> if (shown.book != null) ReaderEntryScreen(shown.book, returnToLibrary = entry == BookEntry.Reader) { back() }
+                        else BookScreen(shown, { if (it == BookIntent.Back) back() else model.accept(it) }, {})
                 }
             }
             SyncIndicator(visible = (state.refreshing || state.reviews.refreshing) && state.reviewDraft == null && state.collections == null && snackbar.currentSnackbarData == null,

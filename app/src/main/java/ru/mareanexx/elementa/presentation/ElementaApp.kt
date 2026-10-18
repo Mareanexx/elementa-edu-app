@@ -2,6 +2,7 @@ package ru.mareanexx.elementa.presentation
 
 import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
 import ru.mareanexx.book_api.domain.repository.BookRepository
+import ru.mareanexx.user_library_api.domain.repository.LibraryRepository
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
@@ -33,7 +34,13 @@ import ru.mareanexx.ui.theme.*
 import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 
 @Composable
-fun ElementaApp(repository: AuthRepository, profileRepository: (AuthUser) -> ProfileRepository, collectionsRepository: (AuthUser) -> CollectionsRepository, bookRepository: (AuthUser) -> BookRepository) {
+fun ElementaApp(
+    repository: AuthRepository,
+    profileRepository: (AuthUser) -> ProfileRepository,
+    collectionsRepository: (AuthUser) -> CollectionsRepository,
+    bookRepository: (AuthUser) -> BookRepository,
+    libraryRepository: (AuthUser) -> LibraryRepository,
+) {
     val sessionViewModel: SessionViewModel = viewModel(factory = viewModelFactory { initializer { SessionViewModel(repository) } })
     val session by sessionViewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
@@ -73,7 +80,7 @@ fun ElementaApp(repository: AuthRepository, profileRepository: (AuthUser) -> Pro
                         }
                     }
                     is SessionState.SignedIn -> SignedInContent(
-                        current, profileRepository, collectionsRepository, bookRepository,
+                        current, profileRepository, collectionsRepository, bookRepository, libraryRepository,
                         onSessionExpired = {
                             sessionViewModel.accept(SessionIntent.SignOut)
                             scope.launch { snackbar.showSnackbar(strings.getString(R.string.session_expired)) }

@@ -17,7 +17,7 @@ import ru.mareanexx.ui.theme.*
 
 /** Точка входа подготовлена к подключению модуля ридера; прогресс здесь не изменяется. */
 @Composable
-internal fun ReaderEntryScreen(book: BookDetails, onBack: () -> Unit) {
+internal fun ReaderEntryScreen(book: BookDetails, returnToLibrary: Boolean = false, onBack: () -> Unit) {
     val strings = LocalResources.current
     val page = if (book.pagesRead >= book.pages) 1 else (book.pagesRead + 1).coerceAtMost(book.pages)
     Column(Modifier.fillMaxSize().background(backgroundMain).testTag("book_reader_entry")) {
@@ -29,6 +29,6 @@ internal fun ReaderEntryScreen(book: BookDetails, onBack: () -> Unit) {
             Text(strings.getString(R.string.book_reader_hint), Modifier.padding(top = 10.dp), style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, color = username)
             Text(strings.getString(R.string.book_reader_page, page), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.labelSmall, color = bodySecondary)
         }
-        BookPrimaryButton(strings.getString(R.string.book_reader_back), onBack, Modifier.fillMaxWidth().padding(16.dp))
+        BookPrimaryButton(strings.getString(if (returnToLibrary) R.string.book_reader_library else R.string.book_reader_back), onBack, Modifier.fillMaxWidth().padding(16.dp))
     }
 }
