@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import ru.mareanexx.ui.components.toolbar.model.SmallTitleToolbarActionButton
 import ru.mareanexx.ui.modifiers.elementaClickable
 import ru.mareanexx.ui.theme.titleMain
+import ru.mareanexx.ui.theme.SecondaryScreenTitle
 import ru.mareanexx.ui.utils.GlobalUiConsts.HORIZONTAL_PADDING
 import ru.mareanexx.common_ui.R as CommonUiR
 
@@ -52,7 +52,7 @@ fun SmallTitleToolbar(
 
         Text(
             text = stringResource(title),
-            style = MaterialTheme.typography.displaySmall,
+            style = SecondaryScreenTitle,
             color = titleMain,
             maxLines = 1,
         )

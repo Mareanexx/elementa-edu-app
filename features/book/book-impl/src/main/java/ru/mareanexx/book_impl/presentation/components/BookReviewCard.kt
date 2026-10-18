@@ -1,5 +1,8 @@
 package ru.mareanexx.book_impl.presentation.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,9 +29,6 @@ import ru.mareanexx.book_api.domain.model.*
 import ru.mareanexx.book_impl.R
 import ru.mareanexx.book_impl.presentation.BookIntent
 import ru.mareanexx.ui.theme.*
-import java.text.DateFormat
-import java.util.Date
-import java.util.Locale
 import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
@@ -86,12 +86,20 @@ internal fun BookReviewCard(review: BookReview, voting: Boolean, onIntent: (Book
 @Composable
 private fun ReactionButton(count: Int, icon: Int, description: String, selected: Boolean, enabled: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val strings = LocalResources.current
-    Surface(shape = RoundedCornerShape(12.dp), color = if (selected) tagVioletBackground else authFieldBackground.copy(alpha = .45f),
+    val positive = icon == R.drawable.book_thumb_up
+    val foreground = if (positive) Color(0xFF3D875C) else Color(0xFFB85468)
+    val background by animateColorAsState(
+        if (positive) { if (selected) Color(0xFFCBE7D5) else Color(0xFFE9F4ED) }
+        else { if (selected) Color(0xFFF2CDD6) else Color(0xFFFAE9ED) },
+        tween(if (LocalAppUiPreferences.current.reduceMotion) 0 else 150), label = "review_reaction_color",
+    )
+    Surface(shape = RoundedCornerShape(12.dp), color = background,
+        border = if (selected) BorderStroke(1.dp, foreground.copy(alpha = .3f)) else null,
         modifier = modifier.semantics { contentDescription = description; this.selected = selected; if (selected) stateDescription = strings.getString(R.string.book_reaction_selected) }
             .clickable(enabled = enabled, interactionSource = remember { MutableInteractionSource() }, indication = null, role = Role.Button, onClick = onClick)) {
         Row(Modifier.heightIn(min = 44.dp).padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            Icon(painterResource(icon), null, Modifier.size(17.dp), tint = if (selected) bodySecondary else username)
-            Text(count.toString(), style = MaterialTheme.typography.labelSmall, color = if (selected) bodySecondary else username)
+            Icon(painterResource(icon), null, Modifier.size(17.dp), tint = foreground.copy(alpha = if (enabled) 1f else .5f))
+            Text(count.toString(), style = MaterialTheme.typography.labelSmall, color = foreground.copy(alpha = if (enabled) 1f else .5f))
         }
     }
 }
@@ -104,5 +112,3 @@ internal fun ReviewerAvatar(name: String, url: String?) {
         if (url != null) AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
     }
 }
-
-internal fun reviewDate(timestamp: Long): String = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.forLanguageTag("ru")).format(Date(timestamp))

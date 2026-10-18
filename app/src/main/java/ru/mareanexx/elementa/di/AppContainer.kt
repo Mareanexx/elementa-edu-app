@@ -9,6 +9,9 @@ import ru.mareanexx.book_impl.data.configureBookTransport
 import ru.mareanexx.user_library_api.domain.repository.LibraryRepository
 import ru.mareanexx.user_library_impl.data.LibraryRepositoryFactory
 import ru.mareanexx.user_library_impl.data.configureLibraryTransport
+import ru.mareanexx.catalog_api.domain.repository.CatalogRepository
+import ru.mareanexx.catalog_impl.data.CatalogRepositoryFactory
+import ru.mareanexx.catalog_impl.data.configureCatalogTransport
 import android.app.Application
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -34,6 +37,21 @@ class AppContainer(
     private val application: Application,
 ) {
     private val sessionStore by lazy { SecureSessionStore(application, AndroidKeystoreSessionCipher()) }
+
+    private val catalogRepositories = mutableMapOf<String, CatalogRepository>()
+
+    @Synchronized
+    fun catalogRepository(user: AuthUser): CatalogRepository = catalogRepositories.getOrPut(user.id) {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .callTimeout(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(false)
+            .addInterceptor(SessionAuthorizationInterceptor(AuthRepositoryFactory.tokenProvider(sessionStore)))
+            .also { configureCatalogTransport(application, it, BuildConfig.MOCK_AUTH, user.id) }
+            .build()
+        CatalogRepositoryFactory.create(application, user.id, client, BuildConfig.AUTH_BASE_URL)
+    }
 
     private val libraryRepositories = mutableMapOf<String, LibraryRepository>()
 

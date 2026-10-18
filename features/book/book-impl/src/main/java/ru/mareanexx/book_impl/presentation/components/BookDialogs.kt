@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -34,17 +33,7 @@ import ru.mareanexx.common_ui.R as CommonR
 internal fun BookDialogs(state: BookUiState, onIntent: (BookIntent) -> Unit) {
     val strings = LocalResources.current
     val maxHeight = LocalConfiguration.current.screenHeightDp.dp * .85f
-    if (state.descriptionOpen) Dialog({ onIntent(BookIntent.DismissDescription) }) {
-        Surface(shape = RoundedCornerShape(26.dp), color = backgroundSecondary) {
-            Column(Modifier.fillMaxWidth().heightIn(max = maxHeight).padding(20.dp)) {
-                DialogHeader(strings.getString(R.string.book_description), { onIntent(BookIntent.DismissDescription) })
-                SelectionContainer(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).testTag("book_full_description")) {
-                    Text(state.book?.description?.ifBlank { strings.getString(R.string.book_no_description) }.orEmpty(), style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp, lineHeight = 22.sp), color = titleMain)
-                }
-                BookPrimaryButton(strings.getString(R.string.book_done), { onIntent(BookIntent.DismissDescription) }, Modifier.fillMaxWidth().padding(top = 16.dp))
-            }
-        }
-    }
+    if (state.descriptionOpen) BookDescriptionSheet(state.book?.description.orEmpty()) { onIntent(BookIntent.DismissDescription) }
     state.reviewDraft?.let { draft ->
         Dialog({ if (!draft.saving) onIntent(BookIntent.CloseReviewEditor) }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
             Surface(Modifier.padding(16.dp).widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight).imePadding(), shape = RoundedCornerShape(26.dp), color = backgroundSecondary) {

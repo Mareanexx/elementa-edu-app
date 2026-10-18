@@ -33,7 +33,5 @@ internal fun CollectionsOverviewHeader(
                 Icon(painterResource(CommonR.drawable.settings_icon), strings.getString(R.string.collections_settings), Modifier.size(24.dp))
             }
         }
-        Text(strings.getString(R.string.collections_intro), Modifier.padding(top = 8.dp, bottom = 6.dp),
-            color = username, style = MaterialTheme.typography.labelMedium)
     }
 }

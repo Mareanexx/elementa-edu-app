@@ -25,7 +25,7 @@ internal fun ProfileTopBar(title: String, onBack: (() -> Unit)? = null, actions:
                 Icon(painterResource(CommonR.drawable.arrow_back_icon), strings.getString(R.string.profile_back), tint = titleMain)
             }
         }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.headlineLarge, color = titleMain)
+        Text(title, Modifier.weight(1f), style = SecondaryScreenTitle, color = titleMain, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, maxLines = 1)
         actions()
     }
 }

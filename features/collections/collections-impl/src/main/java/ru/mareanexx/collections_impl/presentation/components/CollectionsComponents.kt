@@ -20,7 +20,7 @@ internal fun CollectionsToolbar(title: String, onBack: (() -> Unit)? = null, act
     val strings = LocalResources.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         if (onBack != null) IconButton(onBack, Modifier.offset(x = (-8).dp)) { Icon(painterResource(CommonR.drawable.arrow_back_icon), strings.getString(R.string.collections_back), tint = titleMain) }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.headlineLarge, color = titleMain, maxLines = 2)
+        Text(title, Modifier.weight(1f), style = SecondaryScreenTitle, color = titleMain, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, maxLines = 2)
         actions()
     }
 }

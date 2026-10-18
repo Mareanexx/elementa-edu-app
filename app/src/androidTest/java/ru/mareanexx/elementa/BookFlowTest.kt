@@ -61,7 +61,7 @@ class BookFlowTest {
         waitTag("review_$targetReview")
     }
     @Before fun setup() {
-        controls.edit().clear().putInt("delay_ms", 100).commit()
+        controls.edit().clear().putInt("delay_ms", 100).putBoolean("long_description", true).commit()
         context.getSharedPreferences("collections_mock_controls", Context.MODE_PRIVATE).edit().clear().commit()
         runBlocking { container.authRepository.clearSession() }
         waitText("Зарегистрироваться")
@@ -109,10 +109,22 @@ class BookFlowTest {
         val layouts = mutableListOf<TextLayoutResult>()
         rule.onNodeWithTag("book_description").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
         assertEquals(6, layouts.single().lineCount)
+        val underlyingScroll = rule.onNodeWithTag("book_content").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value()
         button("Полностью").performClick()
+        waitTag("book_description_sheet")
         waitTag("book_full_description")
+        val sheetTop = rule.onNodeWithTag("book_description_sheet").fetchSemanticsNode().boundsInRoot.top
+        val scroll = rule.onNodeWithTag("book_description_scroll")
+        scroll.performTouchInput { swipeDown(durationMillis = 600) }
+        rule.onNodeWithTag("book_description_sheet").assertIsDisplayed()
+        assertEquals(sheetTop, rule.onNodeWithTag("book_description_sheet").fetchSemanticsNode().boundsInRoot.top, 1f)
+        scroll.performTouchInput { swipeUp(durationMillis = 600) }
+        assertTrue(scroll.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value() > 0f)
+        assertEquals(sheetTop, rule.onNodeWithTag("book_description_sheet").fetchSemanticsNode().boundsInRoot.top, 1f)
         capture("book-description")
         button("Понятно").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("book_description_sheet").fetchSemanticsNodes().isEmpty() }
+        assertEquals(underlyingScroll, rule.onNodeWithTag("book_content").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value(), 1f)
         scrollBook(hasTestTag("book_read"))
         rule.onNodeWithTag("book_read").performClick()
         waitTag("book_reader_entry")

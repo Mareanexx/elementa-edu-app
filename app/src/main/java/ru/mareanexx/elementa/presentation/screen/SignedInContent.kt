@@ -1,5 +1,7 @@
 package ru.mareanexx.elementa.presentation.screen
 
+import ru.mareanexx.catalog_api.domain.repository.CatalogRepository
+import ru.mareanexx.catalog_impl.presentation.HomeRoute
 import ru.mareanexx.book_api.domain.repository.BookRepository
 import ru.mareanexx.book_api.domain.model.BookEntry
 import ru.mareanexx.user_library_api.domain.repository.LibraryRepository
@@ -44,6 +46,7 @@ internal fun SignedInContent(
     createCollectionsRepository: (AuthUser) -> CollectionsRepository,
     createBookRepository: (AuthUser) -> BookRepository,
     createLibraryRepository: (AuthUser) -> LibraryRepository,
+    createCatalogRepository: (AuthUser) -> CatalogRepository,
     onSessionExpired: () -> Unit,
     onSignOut: () -> Unit,
 ) {
@@ -51,6 +54,7 @@ internal fun SignedInContent(
     val collectionsRepository = remember(state.user.id) { createCollectionsRepository(state.user) }
     val bookRepository = remember(state.user.id) { createBookRepository(state.user) }
     val libraryRepository = remember(state.user.id) { createLibraryRepository(state.user) }
+    val catalogRepository = remember(state.user.id) { createCatalogRepository(state.user) }
     var collectionPickerBookId by rememberSaveable(state.user.id) { mutableStateOf<String?>(null) }
     val pickerSnackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -88,7 +92,7 @@ internal fun SignedInContent(
                 containerColor = backgroundMain,
                 bottomBar = {
                     AnimatedVisibility(
-                        visible = bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections)),
+                        visible = bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Home, MainNavigationTabs.Profile, MainNavigationTabs.Collections)),
                         enter = expandVertically(tween(if (settings.reduceMotion) 0 else 460), expandFrom = Alignment.Bottom),
                         exit = shrinkVertically(tween(if (settings.reduceMotion) 0 else 460), shrinkTowards = Alignment.Bottom),
                     ) {
@@ -101,7 +105,18 @@ internal fun SignedInContent(
             ) { padding ->
                 Box(Modifier.fillMaxSize().padding(padding)) {
                     when (tab) {
-                        MainNavigationTabs.Home -> MainScreen(state, onSignOut)
+                        MainNavigationTabs.Home -> HomeRoute(
+                            catalogRepository, bookRepository, state.user.id, libraryVersion,
+                            onOpenBook = { id, entry ->
+                                if (entry == BookEntry.Collections) collectionPickerBookId = id
+                                else { bookEntry = entry; bookId = id }
+                            },
+                            onOpenLibrary = { showBottomBar = true; tab = MainNavigationTabs.Library },
+                            onOpenCollections = { showBottomBar = true; tab = MainNavigationTabs.Collections },
+                            onSessionExpired = onSessionExpired,
+                            onRootScreenChanged = { showBottomBar = it },
+                            onScreenColorChanged = {},
+                        )
                         MainNavigationTabs.Profile -> ProfileRoute(
                             repository, state.user.id, state.signingOut, state.signOutFailed, onSignOut,
                             onSessionExpired = onSessionExpired,
@@ -150,11 +165,11 @@ internal fun SignedInContent(
                     onSessionExpired = onSessionExpired,
                 )
             }
-            SnackbarHost(pickerSnackbar, Modifier.align(Alignment.BottomCenter).padding(horizontal = 16.dp).padding(bottom = 110.dp)) {
+            SnackbarHost(pickerSnackbar, Modifier.align(Alignment.BottomCenter).padding(horizontal = 16.dp).padding(bottom = if (showBottomBar) 110.dp else 16.dp)) {
                 Snackbar(it, shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
             }
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                .background(if (bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections))) navBackground else screenColor))
+                .background(if (bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Home, MainNavigationTabs.Profile, MainNavigationTabs.Collections))) navBackground else screenColor))
         }
     }
 }

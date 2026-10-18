@@ -10,6 +10,8 @@
         <exclude domain="sharedpref" path="book_rating_mock_cache.xml" />
         <exclude domain="sharedpref" path="library_demo_server.xml" />
         <exclude domain="sharedpref" path="library_search_history.xml" />
+        <exclude domain="sharedpref" path="catalog_search_history.xml" />
+        <exclude domain="sharedpref" path="catalog_demo_notifications.xml" />
         <exclude domain="file" path="demo_avatars/" />
         <exclude domain="file" path="demo_collection_covers/" />
     </cloud-backup>
@@ -22,6 +24,8 @@
         <exclude domain="sharedpref" path="book_rating_mock_cache.xml" />
         <exclude domain="sharedpref" path="library_demo_server.xml" />
         <exclude domain="sharedpref" path="library_search_history.xml" />
+        <exclude domain="sharedpref" path="catalog_search_history.xml" />
+        <exclude domain="sharedpref" path="catalog_demo_notifications.xml" />
         <exclude domain="file" path="demo_avatars/" />
         <exclude domain="file" path="demo_collection_covers/" />
     </device-transfer>

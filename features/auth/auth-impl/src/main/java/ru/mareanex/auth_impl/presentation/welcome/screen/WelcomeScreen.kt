@@ -31,9 +31,9 @@ fun WelcomeScreen(
     Column(modifier.fillMaxSize().background(authBackground).verticalScroll(rememberScrollState()).padding(vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Spacer(Modifier.height(12.dp))
-        Image(painterResource(R.drawable.welcome_screen_back), null, contentScale = ContentScale.Fit,
-            alignment = Alignment.CenterEnd,
-            modifier = Modifier.fillMaxWidth().height(360.dp))
+        Image(painterResource(R.drawable.welcome_chemistry), null, contentScale = ContentScale.Fit,
+            alignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(340.dp))
         Text(stringResource(CommonR.string.welcome_screen_heading, stringResource(CommonR.string.app_name), stringResource(CommonR.string.welcome_screen_title)),
             style = MaterialTheme.typography.displayLarge, fontSize = 36.sp, lineHeight = 38.sp,
             color = titleMain, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING))

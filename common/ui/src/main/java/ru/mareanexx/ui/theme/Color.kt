@@ -8,6 +8,7 @@ val titleMain = Color(0xFF353269)
 val bodySecondary = Color(0xFF5A55D7)
 
 val backgroundMain = Color(0xFFEEEDFD)
+val skeletonBackground = Color(0xFFD4D0E8)
 val onBackgroundMain = Color(0xFFF0F0F7)
 val outerShadow = Color(0x3369688B)
 
@@ -28,6 +29,8 @@ val authFieldBackground = Color(0xFFE7E7F1)
 // Экран Главная
 
 // Моя библиотека
+
+val searchHint = Color(0xFF858491)
 
 // Мои коллекции
 

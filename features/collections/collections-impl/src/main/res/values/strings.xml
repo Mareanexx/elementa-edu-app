@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="collections_title">Мои коллекции</string>
-    <string name="collections_intro">Знания, которые ты собираешь</string>
     <string name="collections_favorite_eyebrow">Всегда под рукой</string>
     <string name="collections_your_shelves">Твои подборки</string>
     <string name="collections_count_badge">%1$d</string>
@@ -113,4 +112,5 @@
     <string name="collections_photo_change">Изменить фото</string>
     <string name="collections_photo_remove">Убрать фото</string>
     <string name="collections_error_image">Не удалось обработать фото. Выбери изображение размером до 20 МБ</string>
+    <string name="collections_book_details">О книге</string>
 </resources>

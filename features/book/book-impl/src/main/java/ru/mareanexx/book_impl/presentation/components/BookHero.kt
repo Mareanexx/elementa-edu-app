@@ -39,12 +39,12 @@ internal fun BookHero(book: BookDetails, onGallery: () -> Unit, onReviews: () ->
                         }
                     }
                 }
-                Column(Modifier.weight(1f).heightIn(min = 184.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column {
                         Text(book.title, style = MaterialTheme.typography.titleMedium, lineHeight = 25.sp, color = titleMain)
                         Text(book.authors, Modifier.padding(top = 8.dp), style = MaterialTheme.typography.labelMedium, color = username)
                     }
-                    Row(Modifier.padding(top = 16.dp).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReviews),
+                    Row(Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onReviews),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                         Icon(painterResource(CommonR.drawable.star_filled_icon), null, Modifier.size(18.dp), tint = rating)
                         val average = book.rating.average
@@ -53,13 +53,13 @@ internal fun BookHero(book: BookDetails, onGallery: () -> Unit, onReviews: () ->
                             Text(strings.getString(R.string.book_ratings_count, book.rating.count), style = MaterialTheme.typography.labelSmall, color = username)
                         } else Text(strings.getString(R.string.book_no_ratings), style = MaterialTheme.typography.labelSmall, color = username)
                     }
-                }
-            }
-            if (book.tags.isNotEmpty()) FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                book.tags.forEach { tag ->
-                    val difficulty = tag.kind == BookTagKind.Difficulty
-                    Text(tag.label, Modifier.background(if (difficulty) tagRedBackground.copy(alpha = .75f) else tagVioletBackground.copy(alpha = .7f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 5.dp),
-                        style = MaterialTheme.typography.labelSmall, fontSize = 11.sp, color = if (difficulty) Color(0xFFAA5266) else bodySecondary)
+                    if (book.tags.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        book.tags.forEach { tag ->
+                            val difficulty = tag.kind == BookTagKind.Difficulty
+                            Text(tag.label, Modifier.background(if (difficulty) tagRedBackground.copy(alpha = .75f) else tagVioletBackground.copy(alpha = .7f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 5.dp),
+                                style = MaterialTheme.typography.labelSmall, fontSize = 11.sp, color = if (difficulty) Color(0xFFAA5266) else bodySecondary)
+                        }
+                    }
                 }
             }
             if (book.pagesRead > 0) {

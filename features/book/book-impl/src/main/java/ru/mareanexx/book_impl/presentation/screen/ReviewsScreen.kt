@@ -42,7 +42,7 @@ internal fun ReviewsScreen(state: BookUiState, onIntent: (BookIntent) -> Unit) {
     }
     Column(Modifier.fillMaxSize().background(backgroundMain)) {
         BookTopBar(strings.getString(R.string.book_reviews), { onIntent(BookIntent.Back) })
-        Text(state.book?.title.orEmpty(), Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp), color = username, style = MaterialTheme.typography.labelMedium)
+        Text(state.book?.title.orEmpty(), Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp), color = username, style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
         LazyColumn(Modifier.fillMaxSize().testTag("book_reviews_list"), state = list, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             state.book?.let { book -> item { RatingSummaryCard(book.rating, book.myReview != null) { onIntent(BookIntent.OpenReviewEditor) } } }
             item {
@@ -50,7 +50,7 @@ internal fun ReviewsScreen(state: BookUiState, onIntent: (BookIntent) -> Unit) {
                     Text(strings.getString(R.string.book_review_sort), Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = username)
                     Box {
                         TextButton({ sortOpen = true }) {
-                            Text(reviewSortTitle(reviews.query.sort), color = bodySecondary, style = MaterialTheme.typography.labelMedium)
+                            Text(reviewSortTitle(reviews.query.sort), color = bodySecondary, style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                             Icon(painterResource(R.drawable.book_chevron_down), null, Modifier.size(18.dp), tint = bodySecondary)
                         }
                         DropdownMenu(sortOpen, { sortOpen = false }, shape = RoundedCornerShape(16.dp), containerColor = backgroundSecondary) {
@@ -65,7 +65,7 @@ internal fun ReviewsScreen(state: BookUiState, onIntent: (BookIntent) -> Unit) {
                             modifier = Modifier.semantics { selected = chosen }.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, role = Role.Tab,
                                 onClick = { onIntent(BookIntent.ChangeReviewQuery(reviews.query.copy(rating = stars))) })) {
                             Row(Modifier.heightIn(min = 44.dp).padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(stars?.toString() ?: strings.getString(R.string.book_filter_all), color = if (chosen) bodySecondary else username, style = MaterialTheme.typography.labelMedium)
+                                Text(stars?.toString() ?: strings.getString(R.string.book_filter_all), color = if (chosen) bodySecondary else username, style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                 if (stars != null) Icon(painterResource(CommonR.drawable.star_filled_icon), strings.getString(R.string.book_filter_stars, stars), Modifier.size(13.dp), tint = rating)
                             }
                         }
@@ -75,7 +75,7 @@ internal fun ReviewsScreen(state: BookUiState, onIntent: (BookIntent) -> Unit) {
             if (reviews.loading) item { ReviewSkeleton() }
             reviews.failure?.let { error -> item { BookErrorCard(error) { onIntent(if (reviews.loaded && reviews.cursor != null) BookIntent.LoadMoreReviews else BookIntent.ReloadReviews) } } }
             if (reviews.loaded && reviews.items.isEmpty() && reviews.failure == null) item {
-                Text(strings.getString(if (reviews.query.rating == null) R.string.book_no_reviews else R.string.book_filter_empty), Modifier.padding(vertical = 24.dp), color = username, style = MaterialTheme.typography.labelMedium)
+                Text(strings.getString(if (reviews.query.rating == null) R.string.book_no_reviews else R.string.book_filter_empty), Modifier.padding(vertical = 24.dp), color = username, style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
             items(reviews.items, key = { it.id }) { review -> BookReviewCard(review, review.id in state.votingIds, onIntent) }
             if (reviews.loadingMore) item { Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp), color = bodySecondary, strokeWidth = 2.dp) } }

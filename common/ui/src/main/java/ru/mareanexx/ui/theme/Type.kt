@@ -136,3 +136,12 @@ val ElementaTypography = Typography(
         fontSize = 10.sp,
     ),
 )
+
+// Заголовок экранов, открытых из основных разделов приложения.
+val SecondaryScreenTitle = TextStyle(
+    fontFamily = ExtraBoldNunito,
+    fontWeight = FontWeight.ExtraBold,
+    fontSize = 18.sp,
+    lineHeight = 24.sp,
+    letterSpacing = 0.sp,
+)

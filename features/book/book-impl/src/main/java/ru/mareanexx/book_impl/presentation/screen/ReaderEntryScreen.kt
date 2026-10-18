@@ -24,7 +24,7 @@ internal fun ReaderEntryScreen(book: BookDetails, returnToLibrary: Boolean = fal
         BookTopBar(strings.getString(R.string.book_reader_title), onBack)
         Column(Modifier.weight(1f).fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             BookCover(book.images.firstOrNull()?.url, book.title, Modifier.width(112.dp).height(168.dp))
-            Text(book.title, Modifier.padding(top = 20.dp), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, color = titleMain)
+            Text(book.title, Modifier.padding(top = 20.dp), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, color = titleMain, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             Text(strings.getString(R.string.book_reader_heading), Modifier.padding(top = 28.dp), style = MaterialTheme.typography.titleSmall, color = titleMain)
             Text(strings.getString(R.string.book_reader_hint), Modifier.padding(top = 10.dp), style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, color = username)
             Text(strings.getString(R.string.book_reader_page, page), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.labelSmall, color = bodySecondary)

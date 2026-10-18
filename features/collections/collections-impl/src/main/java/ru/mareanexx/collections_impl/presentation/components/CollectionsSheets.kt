@@ -95,7 +95,7 @@ internal fun CollectionBookPicker(state: CollectionsUiState, onIntent: (Collecti
                             onValueChange = { onIntent(CollectionsIntent.ToggleBook(book.id)) }).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                             BookCover(book, Modifier.width(44.dp).height(62.dp))
                             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                                Text(book.title, color = titleMain, style = MaterialTheme.typography.displaySmall, maxLines = 2)
+                                Text(book.title, color = titleMain, style = MaterialTheme.typography.displaySmall, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                 Text(if (existing) strings.getString(R.string.collections_picker_existing) else book.authors, color = username, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                             }
                             Checkbox(checked, onCheckedChange = null, enabled = !existing, colors = CheckboxDefaults.colors(checkedColor = bodySecondary))

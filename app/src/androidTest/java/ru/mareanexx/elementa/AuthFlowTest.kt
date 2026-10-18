@@ -26,13 +26,20 @@ class AuthFlowTest {
         file.parentFile!!.mkdirs()
         file.outputStream().use { rule.onRoot().captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
+    private fun logout() {
+        button("Профиль").performClick()
+        rule.onNodeWithContentDescription("Настройки приложения").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodes(hasText("Выйти из аккаунта") and hasClickAction() and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        button("Выйти из аккаунта").performScrollTo().performClick()
+        button("Выйти").performClick()
+    }
     @Before fun guest() {
         rule.waitUntil(15_000) {
             rule.onAllNodesWithText("Зарегистрироваться").fetchSemanticsNodes().isNotEmpty() ||
-                rule.onAllNodesWithText("Выйти").fetchSemanticsNodes().isNotEmpty()
+                rule.onAllNodesWithTag("home_screen").fetchSemanticsNodes().isNotEmpty()
         }
-        if (rule.onAllNodesWithText("Выйти").fetchSemanticsNodes().isNotEmpty()) {
-            button("Выйти").performClick()
+        if (rule.onAllNodesWithTag("home_screen").fetchSemanticsNodes().isNotEmpty()) {
+            logout()
             waitFor("Зарегистрироваться")
         }
     }
@@ -68,7 +75,7 @@ class AuthFlowTest {
         button("Войти").performScrollTo().performClick()
         waitFor("Главная")
         rule.onAllNodesWithText("Главная").onFirst().assertIsDisplayed()
-        button("Выйти").performClick()
+        logout()
         waitFor("Твой химический ридер")
     }
     @Test fun registerThenLoginWithNewAccount() {
@@ -80,14 +87,14 @@ class AuthFlowTest {
         field("Подтвердите пароль").performScrollTo().performTextInput("Elementa123")
         button("Зарегистрироваться").performScrollTo().performClick()
         waitFor("Главная")
-        button("Выйти").performClick()
+        logout()
         waitFor("Твой химический ридер")
         button("Войти").performClick()
         field("Имя пользователя").performTextInput(username)
         field("Пароль").performTextInput("Elementa123")
         button("Войти").performScrollTo().performClick()
         waitFor("Главная")
-        button("Выйти").performClick()
+        logout()
         waitFor("Твой химический ридер")
     }
     @Test fun offlineErrorCanBeCorrectedAndRetried() {
@@ -99,7 +106,7 @@ class AuthFlowTest {
         field("Имя пользователя").performTextReplacement("chemist")
         button("Войти").performScrollTo().performClick()
         waitFor("Главная")
-        button("Выйти").performClick()
+        logout()
         waitFor("Твой химический ридер")
     }
     @Test fun persistSessionForRelaunch() {

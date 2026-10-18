@@ -166,7 +166,8 @@ internal class DemoBookInterceptor(
         val images = if (id == "book_12") emptyList() else listOf(BookImageDto("cover", imagePrefix + if (id == "book_1") R.drawable.book_example else R.drawable.book_demo_cover, "Обложка")) +
             if (id == "book_1") listOf(BookImageDto("spread", imagePrefix + R.drawable.book_demo_spread, "Разворот · демо"), BookImageDto("diagram", imagePrefix + R.drawable.book_demo_diagram, "Иллюстрация · демо")) else emptyList()
         val description = book.description + "\n\nВ книге последовательно разобраны строение молекул, химические связи и закономерности протекания реакций. Теория сопровождается схемами, примерами и вопросами для самостоятельной проверки.\n\nОтдельное внимание уделено тому, как читать структурные формулы, сравнивать свойства соединений и объяснять механизмы превращений. Материал удобно изучать небольшими разделами, возвращаясь к ключевым определениям и делая собственные заметки.\n\nИздание подойдёт для повторения курса и подготовки к практическим занятиям. Перед сложными темами полезно освежить базовые понятия общей химии."
-        return BookDetailsDto(book.id, book.title, book.authors, description, images, book.tags.map { BookTagDto(it.id, it.label, it.kind.name.lowercase()) },
+        val fullDescription = if (controls.getBoolean("long_description", false)) List(5) { description }.joinToString("\n\n") else description
+        return BookDetailsDto(book.id, book.title, book.authors, fullDescription, images, book.tags.map { BookTagDto(it.id, it.label, it.kind.name.lowercase()) },
             book.pages, book.pagesRead, 5_600_000L + book.id.removePrefix("book_").toLong() * 100_000, 12, rating(records), shelves(id),
             BookMetadataDto("Учебная редакция Elementa", 2022, "Русский", null, "EPUB"), records.firstOrNull { it.authorId == userId }?.let(::review),
             records.sortedByDescending { it.baseLikes }.take(2).map(::review))

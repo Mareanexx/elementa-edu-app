@@ -270,6 +270,7 @@ class ProfileFlowTest {
         waitFor("Учись в своём ритме")
         rule.waitUntil(15_000) { rule.onNodeWithContentDescription("Уменьшение анимации").enabled() }
         capture("profile-settings")
+        assertSafeAreas(topColor = Color.rgb(238, 237, 253), bottomColor = Color.rgb(238, 237, 253))
         rule.onNodeWithContentDescription("Уменьшение анимации").performScrollTo().performClick()
         rule.waitUntil(15_000) { runBlocking { container.profileRepository(user).settings.first().reduceMotion } }
         rule.onNodeWithContentDescription("Не выключать экран").performScrollTo().performClick()
@@ -284,6 +285,7 @@ class ProfileFlowTest {
         rule.activityRule.scenario.recreate()
         waitFor("Учись в своём ритме")
         rule.onNodeWithContentDescription("Уменьшение анимации").assertIsOn()
+        assertSafeAreas(topColor = Color.rgb(238, 237, 253), bottomColor = Color.rgb(238, 237, 253))
         rule.onNodeWithContentDescription("Не выключать экран").assertIsOn()
         assertEquals(1.1f, runBlocking { container.profileRepository(user).settings.first().textScale })
         rule.waitUntil(15_000) { button("Очистить кеш").enabled() }

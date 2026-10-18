@@ -20,7 +20,7 @@ internal fun BookTopBar(title: String, onBack: () -> Unit, actions: @Composable 
     val strings = LocalResources.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         IconButton(onBack, Modifier.offset(x = (-8).dp)) { Icon(painterResource(CommonR.drawable.arrow_back_icon), strings.getString(R.string.book_back), tint = titleMain) }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.headlineLarge, color = titleMain)
+        Text(title, Modifier.weight(1f), style = SecondaryScreenTitle, color = titleMain, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, maxLines = 1)
         actions()
     }
 }

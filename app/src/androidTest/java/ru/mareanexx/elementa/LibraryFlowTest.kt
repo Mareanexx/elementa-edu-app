@@ -47,8 +47,9 @@ class LibraryFlowTest {
         rule.waitForIdle()
     }
     private fun refresh() {
-        rule.onNodeWithContentDescription("Настроить библиотеку").performClick()
-        button("Обновить").performClick()
+        val category = LibraryCategory.entries.first { rule.onAllNodes(hasTestTag("library_tab_${it.name}") and isSelected()).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("library_list_${category.name}").performScrollToIndex(0)
+        rule.onNodeWithTag("library_list_${category.name}").performTouchInput { swipeDown(startY = height * .12f, endY = height * .9f, durationMillis = 700) }
     }
     private fun query(text: String) {
         rule.onNodeWithTag("library_search").performTextReplacement(text)
@@ -92,7 +93,7 @@ class LibraryFlowTest {
             context.getSharedPreferences("collections_preferences", Context.MODE_PRIVATE).edit().remove("preferences_${user.id}").commit()
         }
     }
-    @Test fun overviewTabsSwipeAndCompletedCarouselHaveDifferentLayouts() {
+    @Test fun overviewCarouselAndCompletedGridHaveDifferentLayouts() {
         val card = rule.onNodeWithTag("library_book_book_1").fetchSemanticsNode().boundsInRoot
         assertEquals(with(rule.density) { androidx.compose.ui.unit.Dp(16f).toPx() }, card.left, 1f)
         capture("library-overview")
@@ -105,14 +106,52 @@ class LibraryFlowTest {
         tab(LibraryCategory.InProgress)
         rule.onNodeWithTag("library_book_book_1").assertIsDisplayed()
         rule.onNodeWithTag("library_pager").performTouchInput { swipeLeft() }
-        waitTag("library_completed_carousel")
+        waitTag("library_tile_book_3")
         rule.onNodeWithTag("library_tab_Completed").assertIsSelected()
-        rule.onNodeWithTag("library_completed_carousel").performTouchInput { swipeLeft() }
+        rule.onNodeWithTag("library_completed_carousel").assertDoesNotExist()
+        val first = rule.onNodeWithTag("library_tile_book_3").fetchSemanticsNode().boundsInRoot
+        val second = rule.onNodeWithTag("library_tile_book_5").fetchSemanticsNode().boundsInRoot
+        assertEquals(first.top, second.top, 1f)
+        assertEquals(first.width, second.width, 1f)
         capture("library-completed")
         tab(LibraryCategory.WantToRead)
         waitTag("library_tile_book_6")
         rule.onNodeWithTag("library_tile_book_6").assertIsDisplayed()
         capture("library-planned")
+    }
+    @Test fun completedShelfCardsHaveEqualHeightWithDifferentAuthorLengths() {
+        assertTrue(runBlocking { library.setReadingStatus("book_1", ReadingStatus.Completed) } is LibraryResult.Success)
+        assertTrue(runBlocking { library.setReadingStatus("book_2", ReadingStatus.Completed) } is LibraryResult.Success)
+        refresh()
+        waitTag("library_tile_book_1")
+        val first = rule.onNodeWithTag("library_tile_book_1").fetchSemanticsNode().boundsInRoot
+        val second = rule.onNodeWithTag("library_tile_book_2").fetchSemanticsNode().boundsInRoot
+        assertEquals(first.top, second.top, 1f)
+        assertEquals(first.height, second.height, 1f)
+        val firstAction = rule.onNodeWithTag("library_read_book_1").fetchSemanticsNode().boundsInRoot
+        val secondAction = rule.onNodeWithTag("library_read_book_2").fetchSemanticsNode().boundsInRoot
+        assertEquals(firstAction.bottom, secondAction.bottom, 1f)
+        capture("library-uniform-completed-shelf")
+    }
+    @Test fun scrollingCollapsesSearchAndSearchButtonRestoresInput() {
+        val expandedTabs = rule.onNodeWithTag("library_tab_All").fetchSemanticsNode().boundsInRoot.top
+        rule.onNodeWithTag("library_list_All").performTouchInput { swipeUp(durationMillis = 600) }
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("library_search").fetchSemanticsNodes().isEmpty() }
+        val compactTabs = rule.onNodeWithTag("library_tab_All").fetchSemanticsNode().boundsInRoot.top
+        assertTrue(expandedTabs - compactTabs > with(rule.density) { androidx.compose.ui.unit.Dp(60f).toPx() })
+        capture("library-search-collapsed")
+        rule.onNodeWithTag("library_search_toggle").performClick()
+        waitTag("library_search")
+        rule.onNodeWithTag("library_search").assertIsFocused()
+        query("Космос")
+        waitTag("library_book_book_3")
+        query("хим")
+        waitTag("library_book_book_1")
+        rule.onNodeWithTag("library_list_All").performTouchInput { swipeUp(durationMillis = 600) }
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("library_search").fetchSemanticsNodes().isEmpty() }
+        rule.onNodeWithTag("library_search_toggle").performClick()
+        waitTag("library_search")
+        rule.onNodeWithTag("library_search").assertTextEquals("хим")
     }
     @Test fun searchUsesBackendForTitlesAuthorsTopicsAndStoresOnlySubmittedQueries() {
         rule.onNodeWithTag("library_search").performTextReplacement("К")
@@ -196,24 +235,25 @@ class LibraryFlowTest {
         tab(LibraryCategory.WantToRead)
         waitTag("library_tile_book_1")
     }
-    @Test fun toolbarSortPersistsAndRefreshKeepsContentWithoutSkeleton() {
+    @Test fun toolbarSortPersistsAndPullToRefreshKeepsContentWithoutSkeleton() {
         rule.onNodeWithContentDescription("Настроить библиотеку").performClick()
+        button("Обновить").assertDoesNotExist()
         button("Сортировка").performClick()
         button("По названию").performClick()
         rule.waitUntil(10_000) { (runBlocking { library.getPreferences() } as LibraryResult.Success).value.sort == LibrarySort.Title }
         rule.onNodeWithTag("library_book_book_1").assertExists()
         controls.edit().putInt("delay_ms", 1000).commit()
         refresh()
-        waitTag("content_sync_indicator")
+        waitTag("library_refresh_indicator")
         rule.onNodeWithTag("library_skeleton").assertDoesNotExist()
         rule.onNodeWithTag("library_book_book_1").assertIsDisplayed()
-        rule.waitUntil(10_000) { rule.onAllNodesWithTag("content_sync_indicator").fetchSemanticsNodes().isEmpty() }
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("library_refresh_indicator").fetchSemanticsNodes().isEmpty() }
         controls.edit().putInt("delay_ms", 100).putInt("next_status", -1).commit()
         refresh()
         waitText("Нет подключения")
         rule.onNodeWithTag("library_book_book_1").assertIsDisplayed()
         button("Обновить").performClick()
-        rule.waitUntil(10_000) { rule.onAllNodesWithTag("content_sync_indicator").fetchSemanticsNodes().isEmpty() }
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("library_refresh_indicator").fetchSemanticsNodes().isEmpty() }
         rule.activityRule.scenario.recreate()
         waitTag("library_book_book_1")
         assertEquals(LibrarySort.Title, (runBlocking { library.getPreferences() } as LibraryResult.Success).value.sort)

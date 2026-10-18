@@ -109,7 +109,7 @@ fun ProfileRoute(
     LaunchedEffect(destination) {
         onRootScreenChanged(destination == ProfileDestination.Overview)
         onScreenColorChanged(when (destination) {
-            ProfileDestination.Overview -> backgroundMain
+            ProfileDestination.Overview, ProfileDestination.Settings -> backgroundMain
             ProfileDestination.Edit -> Color.White
             else -> backgroundSecondary
         })

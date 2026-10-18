@@ -33,9 +33,6 @@ internal fun CollectionsScreen(state: CollectionsUiState, all: Boolean, onIntent
             IconButton({ onIntent(CollectionsIntent.Create) }, enabled = !state.loading) {
                 Icon(painterResource(CommonR.drawable.add_icon), strings.getString(R.string.collections_add), tint = titleMain)
             }
-            IconButton({ onIntent(CollectionsIntent.OpenSort) }) {
-                Icon(painterResource(R.drawable.collections_sort_icon), strings.getString(R.string.collections_sort), tint = titleMain)
-            }
         }
         state.failure?.let { error ->
             Box(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {

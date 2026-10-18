@@ -22,6 +22,7 @@ import java.util.Locale
 import ru.mareanexx.collections_api.domain.model.*
 import ru.mareanexx.collections_impl.R
 import ru.mareanexx.ui.theme.*
+import ru.mareanexx.ui.theme.rating as ratingStar
 import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
@@ -38,7 +39,7 @@ internal fun BookRatingRow(rating: BookRating?, modifier: Modifier = Modifier) {
     val description = strings.getString(R.string.collections_rating_accessibility, value, rating.count)
     Row(modifier.clearAndSetSemantics { contentDescription = description }, verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Icon(painterResource(CommonR.drawable.star_filled_icon), null, Modifier.size(18.dp), tint = favoriteStar)
+        Icon(painterResource(CommonR.drawable.star_filled_icon), null, Modifier.size(18.dp), tint = ratingStar)
         Text(value, color = titleMain, style = MaterialTheme.typography.displaySmall)
         Text(strings.getString(R.string.collections_rating_count, rating.count), color = username, style = MaterialTheme.typography.labelSmall)
     }

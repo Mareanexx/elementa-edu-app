@@ -107,7 +107,7 @@ internal fun ReadingListCollectionCard(item: BookCollection, onClick: () -> Unit
             }
             Column(Modifier.weight(1f)) {
                 Text(collectionTitle(item), style = MaterialTheme.typography.displaySmall, color = titleMain)
-                Text(bookCount(item.bookCount), Modifier.padding(top = 3.dp), style = MaterialTheme.typography.labelSmall, color = username)
+                Text(bookCount(item.bookCount), style = MaterialTheme.typography.labelSmall.copy(lineHeight = 14.sp), color = username)
             }
             Icon(painterResource(CommonR.drawable.keyboard_arrow_right_icon), null, Modifier.size(22.dp), tint = bodySecondary)
         }

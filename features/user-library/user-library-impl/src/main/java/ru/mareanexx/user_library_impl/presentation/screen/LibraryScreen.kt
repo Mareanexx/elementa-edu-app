@@ -1,23 +1,22 @@
 package ru.mareanexx.user_library_impl.presentation.screen
 
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.*
+import androidx.compose.material3.pulltorefresh.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,7 +30,7 @@ import ru.mareanexx.ui.theme.*
 import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
-internal fun LibraryScreen(state: LibraryUiState, onIntent: (LibraryIntent) -> Unit) {
+internal fun LibraryScreen(state: LibraryUiState, onIntent: (LibraryIntent) -> Unit, pullRefreshing: Boolean, onRefresh: () -> Unit) {
     val strings = LocalResources.current
     val pager = rememberPagerState(initialPage = state.category.ordinal) { LibraryCategory.entries.size }
     val scope = rememberCoroutineScope()
@@ -39,7 +38,28 @@ internal fun LibraryScreen(state: LibraryUiState, onIntent: (LibraryIntent) -> U
     val latestIntent by rememberUpdatedState(onIntent)
     val keyboard = LocalSoftwareKeyboardController.current
     val focus = LocalFocusManager.current
-    var toolbarMenu by remember { mutableStateOf(false) }
+    val lists = LibraryCategory.entries.map { rememberLazyListState() }
+    val collapseRange = with(LocalDensity.current) { 64.dp.toPx() }
+    var collapsedPixels by remember { mutableFloatStateOf(0f) }
+    val collapse by animateFloatAsState(collapsedPixels / collapseRange, tween(if (preferences.reduceMotion) 0 else 120), label = "library_search_collapse")
+    val latestState by rememberUpdatedState(state)
+    val connection = remember(collapseRange, pager) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val live = latestState
+                if (live.searchFocused || live.mutating || source != NestedScrollSource.UserInput) return Offset.Zero
+                val list = lists[pager.currentPage]
+                if (available.y < 0f && !list.canScrollForward && !list.canScrollBackward) return Offset.Zero
+                val before = collapsedPixels
+                collapsedPixels = (before - available.y).coerceIn(0f, collapseRange)
+                return Offset(0f, before - collapsedPixels)
+            }
+        }
+    }
+    LaunchedEffect(state.searchFocused) {
+        if (state.searchFocused) collapsedPixels = 0f
+    }
+    val refreshState = rememberPullToRefreshState()
     fun select(category: LibraryCategory) {
         keyboard?.hide(); focus.clearFocus()
         scope.launch { if (preferences.reduceMotion) pager.scrollToPage(category.ordinal) else pager.animateScrollToPage(category.ordinal, animationSpec = tween(320)) }
@@ -47,66 +67,55 @@ internal fun LibraryScreen(state: LibraryUiState, onIntent: (LibraryIntent) -> U
     LaunchedEffect(pager) {
         snapshotFlow { pager.targetPage }.distinctUntilChanged().collect { latestIntent(LibraryIntent.SelectCategory(LibraryCategory.entries[it])) }
     }
-    Column(Modifier.fillMaxSize().background(backgroundMain).testTag("library_screen")) {
-        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(strings.getString(R.string.library_screen_title), Modifier.weight(1f), style = MaterialTheme.typography.headlineLarge, fontSize = 28.sp, color = titleMain)
-            Box {
-                IconButton({ toolbarMenu = true }, enabled = !state.mutating) { Icon(painterResource(CommonR.drawable.more_vert_icon), strings.getString(R.string.library_menu), tint = titleMain) }
-                DropdownMenu(toolbarMenu, { toolbarMenu = false }, shape = RoundedCornerShape(16.dp), containerColor = backgroundSecondary) {
-                    DropdownMenuItem(text = { Text(strings.getString(R.string.library_sort)) }, leadingIcon = { Icon(painterResource(R.drawable.library_sort), null) }, onClick = { toolbarMenu = false; onIntent(LibraryIntent.OpenSort) })
-                    DropdownMenuItem(text = { Text(strings.getString(R.string.library_refresh)) }, leadingIcon = { Icon(painterResource(R.drawable.library_refresh), null) }, onClick = { toolbarMenu = false; onIntent(LibraryIntent.Refresh) })
-                    DropdownMenuItem(text = { Text(strings.getString(R.string.library_help)) }, leadingIcon = { Icon(painterResource(R.drawable.library_info), null) }, onClick = { toolbarMenu = false; onIntent(LibraryIntent.OpenHelp) })
-                }
-            }
-        }
-        Text(strings.getString(R.string.library_eyebrow), Modifier.padding(horizontal = 16.dp).padding(top = 2.dp, bottom = 16.dp), style = MaterialTheme.typography.labelMedium, color = username)
-        TextField(state.input, { onIntent(LibraryIntent.ChangeSearch(it)) }, Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("library_search")
-            .onFocusChanged { onIntent(LibraryIntent.SearchFocus(it.isFocused)) }, enabled = !state.mutating, singleLine = true,
-            shape = RoundedCornerShape(16.dp), placeholder = { Text(strings.getString(R.string.library_search_hint), style = MaterialTheme.typography.labelMedium) },
-            textStyle = MaterialTheme.typography.labelMedium.copy(color = titleMain, fontFamily = NormalNunito),
-            leadingIcon = { Icon(painterResource(R.drawable.library_search), null, Modifier.size(20.dp), tint = username) },
-            trailingIcon = { if (state.input.isNotEmpty()) IconButton({ onIntent(LibraryIntent.ClearSearch) }) { Icon(painterResource(CommonR.drawable.close_icon), strings.getString(R.string.library_search_clear), Modifier.size(20.dp), tint = username) } },
-            colors = TextFieldDefaults.colors(focusedContainerColor = authFieldBackground, unfocusedContainerColor = authFieldBackground,
-                focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent, unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent, cursorColor = bodySecondary),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { keyboard?.hide(); focus.clearFocus(); onIntent(LibraryIntent.SubmitSearch) }))
-        Spacer(Modifier.height(10.dp))
+    Column(Modifier.fillMaxSize().background(backgroundMain).nestedScroll(connection).testTag("library_screen")) {
+        LibraryHeader(state, collapse, { collapsedPixels = 0f }, onIntent)
         LibraryTabs(pager, state.counts.takeIf { state.countsLoaded && !state.searchPending && !state.tooShort }, !state.mutating, ::select)
-        when {
-            state.tooShort -> Column(Modifier.fillMaxWidth().padding(32.dp)) {
-                Text(strings.getString(R.string.library_search_short), style = MaterialTheme.typography.titleSmall, color = titleMain)
-                Text(strings.getString(R.string.library_search_short_hint), Modifier.padding(top = 8.dp), style = MaterialTheme.typography.labelMedium, color = username)
-            }
-            state.searchFocused && state.input.isBlank() && state.recentQueries.isNotEmpty() -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(strings.getString(R.string.library_recent), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = titleMain)
-                        TextButton({ onIntent(LibraryIntent.ClearHistory) }) { Text(strings.getString(R.string.library_clear_history), color = bodySecondary, fontSize = 12.sp) }
+        Box(Modifier.weight(1f).fillMaxWidth().pullToRefresh(
+            isRefreshing = pullRefreshing && state.page(state.category).refreshing,
+            state = refreshState,
+            enabled = state.ready && !state.mutating && !state.searchPending && !state.tooShort && !state.page(state.category).loading && !state.searchFocused,
+            onRefresh = onRefresh,
+        )) {
+            when {
+                state.tooShort -> Column(Modifier.fillMaxWidth().padding(32.dp)) {
+                    Text(strings.getString(R.string.library_search_short), style = MaterialTheme.typography.titleSmall, color = titleMain)
+                    Text(strings.getString(R.string.library_search_short_hint), Modifier.padding(top = 8.dp), style = MaterialTheme.typography.labelMedium, color = username)
+                }
+                state.searchFocused && state.input.isBlank() && state.recentQueries.isNotEmpty() -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(strings.getString(R.string.library_recent), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = titleMain)
+                            TextButton({ onIntent(LibraryIntent.ClearHistory) }) { Text(strings.getString(R.string.library_clear_history), color = bodySecondary, fontSize = 12.sp) }
+                        }
+                    }
+                    items(state.recentQueries) { query -> TextButton({ onIntent(LibraryIntent.ChangeSearch(query)); onIntent(LibraryIntent.SubmitSearch); keyboard?.hide(); focus.clearFocus() }, Modifier.fillMaxWidth(), contentPadding = PaddingValues(vertical = 12.dp)) {
+                        Icon(painterResource(R.drawable.library_search), null, Modifier.size(18.dp), tint = username)
+                        Text(query, Modifier.weight(1f).padding(start = 12.dp), style = MaterialTheme.typography.labelMedium, color = titleMain)
+                    } }
+                    item { Text(strings.getString(R.string.library_history_hint), style = MaterialTheme.typography.labelSmall, color = username) }
+                }
+                else -> HorizontalPager(pager, Modifier.fillMaxSize().testTag("library_pager"), userScrollEnabled = !state.mutating, key = { LibraryCategory.entries[it].name }) { index ->
+                    val category = LibraryCategory.entries[index]
+                    Box(Modifier.fillMaxSize().then(if (index != pager.currentPage) Modifier.clearAndSetSemantics {} else Modifier)) {
+                        if (state.searchPending || !state.ready) LibrarySkeleton()
+                        else LibraryPageContent(state.page(category), category, state.searching, state.mutating, lists[index], onIntent, ::select)
                     }
                 }
-                items(state.recentQueries) { query -> TextButton({ onIntent(LibraryIntent.ChangeSearch(query)); onIntent(LibraryIntent.SubmitSearch); keyboard?.hide(); focus.clearFocus() }, Modifier.fillMaxWidth(), contentPadding = PaddingValues(vertical = 12.dp)) {
-                    Icon(painterResource(R.drawable.library_search), null, Modifier.size(18.dp), tint = username)
-                    Text(query, Modifier.weight(1f).padding(start = 12.dp), style = MaterialTheme.typography.labelMedium, color = titleMain)
-                } }
-                item { Text(strings.getString(R.string.library_history_hint), style = MaterialTheme.typography.labelSmall, color = username) }
             }
-            else -> HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth().testTag("library_pager"), userScrollEnabled = !state.mutating, key = { LibraryCategory.entries[it].name }) { index ->
-                val category = LibraryCategory.entries[index]
-                Box(Modifier.fillMaxSize().then(if (index != pager.currentPage) Modifier.clearAndSetSemantics {} else Modifier)) {
-                    if (state.searchPending || !state.ready) LibrarySkeleton()
-                    else LibraryPageContent(state.page(category), category, state.searching, state.mutating, onIntent, ::select)
-                }
-            }
+            if (refreshState.distanceFraction > 0f || pullRefreshing) PullToRefreshDefaults.Indicator(
+                state = refreshState, isRefreshing = pullRefreshing && state.page(state.category).refreshing,
+                modifier = Modifier.align(Alignment.TopCenter).testTag("library_refresh_indicator"), containerColor = backgroundSecondary, color = bodySecondary,
+            )
         }
     }
 }
 
 @Composable
-private fun LibraryPageContent(page: LibraryPageState, category: LibraryCategory, searching: Boolean, busy: Boolean, onIntent: (LibraryIntent) -> Unit, select: (LibraryCategory) -> Unit) {
+private fun LibraryPageContent(page: LibraryPageState, category: LibraryCategory, searching: Boolean, busy: Boolean, list: LazyListState, onIntent: (LibraryIntent) -> Unit, select: (LibraryCategory) -> Unit) {
     val strings = LocalResources.current
-    val list = rememberLazyListState()
     val latestIntent by rememberUpdatedState(onIntent)
     LaunchedEffect(list, page.items.size, page.cursor, searching) {
-        if (category != LibraryCategory.Completed || searching) snapshotFlow {
+        snapshotFlow {
             list.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { it >= list.layoutInfo.totalItemsCount - 3 } == true
         }.distinctUntilChanged().collect { if (it) latestIntent(LibraryIntent.LoadMore(category)) }
     }
@@ -116,13 +125,7 @@ private fun LibraryPageContent(page: LibraryPageState, category: LibraryCategory
         if (page.loaded && page.items.isEmpty() && page.failure == null) item { LibraryEmpty(category, searching) { select(LibraryCategory.All) } }
         when {
             searching || category == LibraryCategory.InProgress -> items(page.items, key = { it.id }) { LibraryBookRow(it, onIntent, compact = searching, enabled = !busy) }
-            category == LibraryCategory.Completed && page.items.isNotEmpty() -> {
-                item {
-                    Text(strings.getString(R.string.library_completed_count, page.totalCount), style = MaterialTheme.typography.titleSmall, color = titleMain)
-                    Text(strings.getString(R.string.library_completed_subtitle), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.labelMedium, color = username)
-                }
-                item { BookCarousel(page.items, onIntent, large = true, enabled = !busy, onNearEnd = { onIntent(LibraryIntent.LoadMore(category)) }) }
-            }
+            category == LibraryCategory.Completed -> libraryGrid(page.items, onIntent, !busy)
             category == LibraryCategory.All -> {
                 val highlights = page.highlights
                 if (!highlights?.inProgress.isNullOrEmpty()) {
@@ -175,17 +178,11 @@ private fun LibrarySection(title: String, onAll: () -> Unit) {
 }
 
 @Composable
-private fun BookCarousel(books: List<LibraryBook>, onIntent: (LibraryIntent) -> Unit, large: Boolean = false, enabled: Boolean = true, onNearEnd: () -> Unit = {}) {
-    val row = rememberLazyListState()
-    val latestNearEnd by rememberUpdatedState(onNearEnd)
-    LaunchedEffect(row, books.size) {
-        snapshotFlow { row.layoutInfo.visibleItemsInfo.lastOrNull()?.index?.let { it >= books.lastIndex - 1 } == true }
-            .distinctUntilChanged().collect { if (it) latestNearEnd() }
-    }
+private fun BookCarousel(books: List<LibraryBook>, onIntent: (LibraryIntent) -> Unit, enabled: Boolean = true) {
     BoxWithConstraints {
-        val width = if (large) maxWidth * .83f else maxWidth * .49f
-        LazyRow(Modifier.fillMaxWidth().testTag(if (large) "library_completed_carousel" else "library_carousel"), state = row, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(books, key = { it.id }) { LibraryTile(it, onIntent, Modifier.width(width), large, enabled) }
+        val width = maxWidth * .49f
+        LazyRow(Modifier.fillMaxWidth().testTag("library_carousel"), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(books, key = { it.id }) { LibraryTile(it, onIntent, Modifier.width(width), enabled) }
         }
     }
 }

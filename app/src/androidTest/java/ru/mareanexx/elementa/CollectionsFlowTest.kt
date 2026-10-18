@@ -175,7 +175,8 @@ class CollectionsFlowTest {
         button("Показать все").performClick()
         waitTag("collection_favorites")
         rule.onNodeWithTag("bottom_navigation").assertDoesNotExist()
-        rule.onNodeWithContentDescription("Сортировка").performClick()
+        rule.onNodeWithContentDescription("Сортировка").assertDoesNotExist()
+        button("Имя: А–Я").performClick()
         button("Больше книг").performClick()
         rule.waitUntil(10_000) { runBlocking { repository.preferences.first().sort == CollectionSort.BooksDescending } }
         waitTag("collection_c7")

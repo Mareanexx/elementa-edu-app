@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_screen_title">Моя библиотека</string>
-    <string name="library_eyebrow">Выбирай книгу и продолжай с нужной страницы</string>
     <string name="library_menu">Настроить библиотеку</string>
     <string name="library_search_hint">Поиск книг, авторов, тем</string>
     <string name="library_search_clear">Очистить поиск</string>
@@ -50,7 +49,7 @@
     <string name="library_help_title">Твоя полка знаний</string>
     <string name="library_help_body">В «Все» собраны твои книги и короткий обзор чтения. Вкладки помогают продолжить начатое или выбрать следующую книгу.
 
-«Хочу прочитать» — тот же список, что в коллекциях. Сердечко сохраняет книгу в избранное. Стрелка на карточке ведёт к чтению.</string>
+«Хочу прочитать» — тот же список, что в коллекциях. Сердечко сохраняет книгу в избранное. Кнопка на карточке ведёт к чтению. Потяни список вниз, чтобы обновить библиотеку.</string>
     <string name="library_favorite_add">В избранное</string>
     <string name="library_favorite_remove">Убрать из избранного</string>
     <string name="library_plan_add">Хочу прочитать</string>
@@ -84,9 +83,6 @@
     <string name="library_empty_want">Что прочитаем дальше?</string>
     <string name="library_empty_want_hint">Сохрани интересную книгу через её меню или на экране «О книге»</string>
     <string name="library_browse_all">Ко всем книгам</string>
-    <string name="library_completed_count">Завершено книг: %1$d</string>
-    <string name="library_completed_subtitle">Можно вернуться к любимым страницам и идеям</string>
-    <string name="library_carousel_position">%1$d / %2$d</string>
     <string name="library_rating">Рейтинг: %1$s из 5. Оценок: %2$d</string>
     <string name="library_no_rating">Пока без оценок</string>
     <string name="library_loading">Загружаем библиотеку</string>
@@ -99,6 +95,7 @@
     <string name="library_error_response">Не удалось обработать данные. Попробуй ещё раз</string>
     <string name="library_error_conflict">Данные изменились. Обнови библиотеку</string>
     <string name="library_error_storage">Не удалось сохранить данные на устройстве</string>
-    <string name="library_featured_label">Следующая глава уже ждёт</string>
     <string name="library_selected_sort">Выбрано</string>
+    <string name="library_search_open">Открыть поиск</string>
+    <string name="library_continue_short">Продолжить</string>
 </resources>

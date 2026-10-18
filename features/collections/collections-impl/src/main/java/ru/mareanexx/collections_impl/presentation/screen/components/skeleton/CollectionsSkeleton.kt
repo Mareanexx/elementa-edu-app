@@ -9,7 +9,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.shimmer
 import ru.mareanexx.ui.theme.LocalAppUiPreferences
-import ru.mareanexx.ui.theme.authFieldBackground
+import ru.mareanexx.ui.theme.skeletonBackground
 import ru.mareanexx.collections_impl.presentation.screen.components.collectionCardHeight
 
 @Composable
@@ -31,5 +31,5 @@ internal fun CollectionsSkeleton(overview: Boolean = false, books: Boolean = fal
 
 @Composable
 private fun SkeletonBlock(modifier: Modifier, radius: Int = 16) {
-    Box(modifier.clip(RoundedCornerShape(radius.dp)).background(authFieldBackground))
+    Box(modifier.clip(RoundedCornerShape(radius.dp)).background(skeletonBackground))
 }

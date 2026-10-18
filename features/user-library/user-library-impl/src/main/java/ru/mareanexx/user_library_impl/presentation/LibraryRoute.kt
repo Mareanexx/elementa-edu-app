@@ -38,6 +38,10 @@ fun LibraryRoute(
 ) {
     val model: LibraryViewModel = viewModel(key = "library_$userId", factory = viewModelFactory { initializer { LibraryViewModel(repository, bookRepository) } })
     val state by model.state.collectAsStateWithLifecycle()
+    var pullRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(state.category, state.page(state.category).refreshing) {
+        if (!state.page(state.category).refreshing) pullRefreshing = false
+    }
     val strings = LocalResources.current
     val snackbar = remember { SnackbarHostState() }
     val focus = LocalFocusManager.current
@@ -78,8 +82,8 @@ fun LibraryRoute(
     }
     Scaffold(containerColor = backgroundMain, snackbarHost = { SnackbarHost(snackbar) { Snackbar(it, shape = RoundedCornerShape(16.dp)) } }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            LibraryScreen(state, ::dispatch)
-            SyncIndicator(visible = state.page(state.category).refreshing && !state.searchPending && state.actionBook == null && !state.sortOpen && state.pendingStatus == null && snackbar.currentSnackbarData == null && !externalFeedbackVisible,
+            LibraryScreen(state, ::dispatch, pullRefreshing) { pullRefreshing = true; dispatch(LibraryIntent.Refresh) }
+            SyncIndicator(visible = !pullRefreshing && state.page(state.category).refreshing && !state.searchPending && state.actionBook == null && !state.sortOpen && state.pendingStatus == null && snackbar.currentSnackbarData == null && !externalFeedbackVisible,
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp))
         }
     }

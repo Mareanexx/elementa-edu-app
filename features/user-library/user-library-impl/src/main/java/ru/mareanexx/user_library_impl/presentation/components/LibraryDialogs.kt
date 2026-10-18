@@ -35,7 +35,7 @@ internal fun LibraryDialogs(state: LibraryUiState, onIntent: (LibraryIntent) -> 
                 Row(Modifier.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     LibraryCover(book, Modifier.size(52.dp, 76.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(book.title, style = MaterialTheme.typography.titleSmall, color = titleMain)
+                        Text(book.title, style = MaterialTheme.typography.titleSmall, color = titleMain, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                         Text(book.authors, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.labelSmall, color = username)
                     }
                 }

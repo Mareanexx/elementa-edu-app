@@ -1,5 +1,6 @@
 package ru.mareanexx.elementa.presentation
 
+import ru.mareanexx.catalog_api.domain.repository.CatalogRepository
 import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
 import ru.mareanexx.book_api.domain.repository.BookRepository
 import ru.mareanexx.user_library_api.domain.repository.LibraryRepository
@@ -40,6 +41,7 @@ fun ElementaApp(
     collectionsRepository: (AuthUser) -> CollectionsRepository,
     bookRepository: (AuthUser) -> BookRepository,
     libraryRepository: (AuthUser) -> LibraryRepository,
+    catalogRepository: (AuthUser) -> CatalogRepository,
 ) {
     val sessionViewModel: SessionViewModel = viewModel(factory = viewModelFactory { initializer { SessionViewModel(repository) } })
     val session by sessionViewModel.state.collectAsStateWithLifecycle()
@@ -80,7 +82,7 @@ fun ElementaApp(
                         }
                     }
                     is SessionState.SignedIn -> SignedInContent(
-                        current, profileRepository, collectionsRepository, bookRepository, libraryRepository,
+                        current, profileRepository, collectionsRepository, bookRepository, libraryRepository, catalogRepository,
                         onSessionExpired = {
                             sessionViewModel.accept(SessionIntent.SignOut)
                             scope.launch { snackbar.showSnackbar(strings.getString(R.string.session_expired)) }

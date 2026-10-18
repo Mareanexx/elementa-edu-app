@@ -62,8 +62,8 @@ private fun CoverPlaceholder(book: LibraryBook) {
             drawLine(Color.White.copy(alpha = .22f), Offset(size.width * .07f, 0f), Offset(size.width * .07f, size.height), 1.dp.toPx())
             drawCircle(Color.White.copy(alpha = .07f), size.width * .7f, Offset(size.width, size.height))
         }
-        Column(Modifier.fillMaxWidth().padding(12.dp)) {
-            Text(book.title, color = Color.White.copy(alpha = .95f), style = MaterialTheme.typography.displaySmall, fontSize = 12.sp, lineHeight = 15.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.fillMaxWidth().padding(10.dp)) {
+            Text(book.title, color = Color.White.copy(alpha = .95f), style = MaterialTheme.typography.displaySmall, fontSize = 10.sp, lineHeight = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Box(Modifier.padding(top = 8.dp).width(24.dp).height(2.dp).background(Color.White.copy(alpha = .5f)))
         }
     }
