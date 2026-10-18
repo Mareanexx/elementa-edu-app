@@ -1,0 +1,5 @@
+<resources>
+    <style name="ReaderSelectionTheme">
+        <item name="android:colorAccent">#68676C</item>
+    </style>
+</resources>

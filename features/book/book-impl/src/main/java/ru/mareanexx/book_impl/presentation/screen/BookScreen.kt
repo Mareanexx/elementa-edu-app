@@ -36,11 +36,15 @@ import java.util.Locale
 import ru.mareanexx.common_ui.R as CommonR
 
 @Composable
-internal fun BookScreen(state: BookUiState, onIntent: (BookIntent) -> Unit, onCopyIsbn: (String) -> Unit) {
+internal fun BookScreen(state: BookUiState, onIntent: (BookIntent) -> Unit, onCopyIsbn: (String) -> Unit, downloadAction: @Composable () -> Unit = {}) {
     val strings = LocalResources.current
     val book = state.book
     Column(Modifier.fillMaxSize().background(backgroundMain).testTag("book_screen")) {
         BookTopBar(strings.getString(R.string.book_title), { onIntent(BookIntent.Back) }) {
+            if (book != null) {
+                downloadAction()
+                Spacer(Modifier.width(8.dp))
+            }
             FilledTonalIconButton({ onIntent(BookIntent.ToggleFavorite) }, Modifier.size(48.dp).testTag("book_favorite"), enabled = book != null && !state.mutationBusy,
                 shape = RoundedCornerShape(16.dp), colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = backgroundSecondary, contentColor = if (book?.shelves?.favorite == true) Color(0xFFC26F88) else bodySecondary)) {
                 if (state.shelvesBusy) CircularProgressIndicator(Modifier.size(22.dp), color = bodySecondary, strokeWidth = 2.dp)

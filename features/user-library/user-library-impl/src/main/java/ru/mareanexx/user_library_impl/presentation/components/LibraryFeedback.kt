@@ -41,12 +41,14 @@ internal fun LibraryEmpty(category: LibraryCategory, searching: Boolean, onAll: 
         LibraryCategory.InProgress -> R.string.library_empty_progress
         LibraryCategory.Completed -> R.string.library_empty_completed
         LibraryCategory.WantToRead -> R.string.library_empty_want
+        LibraryCategory.Downloaded -> R.string.library_empty_downloaded
     }
     val hint = if (searching) R.string.library_search_empty_hint else when (category) {
         LibraryCategory.All -> R.string.library_empty_hint
         LibraryCategory.InProgress -> R.string.library_empty_progress_hint
         LibraryCategory.Completed -> R.string.library_empty_completed_hint
         LibraryCategory.WantToRead -> R.string.library_empty_want_hint
+        LibraryCategory.Downloaded -> R.string.library_empty_downloaded_hint
     }
     Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp).testTag("library_empty"), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(shape = RoundedCornerShape(26.dp), color = tagVioletBackground.copy(alpha = .5f)) {

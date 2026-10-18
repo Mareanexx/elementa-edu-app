@@ -13,9 +13,9 @@ import ru.mareanexx.datastore.SessionStore
 
 /** Собирает внутренние реализации слоя данных и возвращает только доменный контракт. */
 object AuthRepositoryFactory {
-    fun tokenProvider(store: SessionStore): AccessTokenProvider {
+    fun tokenProvider(store: SessionStore, userId: String? = null): AccessTokenProvider {
         val local = AuthSessionLocalDataSource(store, Gson())
-        return AccessTokenProvider { local.accessToken() }
+        return AccessTokenProvider { local.accessToken(userId) }
     }
 
     fun create(api: AuthApi, store: SessionStore, gson: Gson = Gson(), now: () -> Long = System::currentTimeMillis): AuthRepository {

@@ -11,6 +11,10 @@
     <exclude domain="sharedpref" path="library_search_history.xml" />
     <exclude domain="sharedpref" path="catalog_search_history.xml" />
     <exclude domain="sharedpref" path="catalog_demo_notifications.xml" />
-    <exclude domain="file" path="demo_avatars/" />
+    <exclude domain="database" path="elementa_reader.db" />
+        <exclude domain="file" path="reader-content/" />
+        <exclude domain="sharedpref" path="reader_installation.xml" />
+        <exclude domain="sharedpref" path="reader_demo_server.xml" />
+        <exclude domain="file" path="demo_avatars/" />
     <exclude domain="file" path="demo_collection_covers/" />
 </full-backup-content>

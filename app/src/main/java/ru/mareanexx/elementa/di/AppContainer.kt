@@ -12,6 +12,10 @@ import ru.mareanexx.user_library_impl.data.configureLibraryTransport
 import ru.mareanexx.catalog_api.domain.repository.CatalogRepository
 import ru.mareanexx.catalog_impl.data.CatalogRepositoryFactory
 import ru.mareanexx.catalog_impl.data.configureCatalogTransport
+import kotlinx.coroutines.flow.first
+import ru.mareanexx.reader_api.domain.repository.ReaderRepository
+import ru.mareanexx.reader_impl.data.ReaderRepositoryFactory
+import ru.mareanexx.reader_impl.data.configureReaderTransport
 import android.app.Application
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -37,6 +41,25 @@ class AppContainer(
     private val application: Application,
 ) {
     private val sessionStore by lazy { SecureSessionStore(application, AndroidKeystoreSessionCipher()) }
+
+    private val readerRepositories = mutableMapOf<String, ReaderRepository>()
+
+    @Synchronized
+    fun readerRepository(user: AuthUser): ReaderRepository = readerRepositories.getOrPut(user.id) {
+        val api = OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
+            .callTimeout(45, TimeUnit.SECONDS).retryOnConnectionFailure(false)
+            .addInterceptor(SessionAuthorizationInterceptor(AuthRepositoryFactory.tokenProvider(sessionStore, user.id)))
+        // Файл приходит по ограниченной ссылке; bearer-токен никогда не передаётся хранилищу файлов.
+        val content = OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(45, TimeUnit.SECONDS)
+            .callTimeout(0, TimeUnit.SECONDS).followRedirects(false).followSslRedirects(false).retryOnConnectionFailure(false)
+        configureReaderTransport(application, api, content, BuildConfig.MOCK_AUTH, user.id)
+        ReaderRepositoryFactory.create(application, user.id, api.build(), content.build(), BuildConfig.AUTH_BASE_URL)
+    }
+
+    suspend fun readerRepositoryForWorker(userId: String): ReaderRepository? {
+        val user = authRepository.session.first()?.user?.takeIf { it.id == userId } ?: return null
+        return readerRepository(user)
+    }
 
     private val catalogRepositories = mutableMapOf<String, CatalogRepository>()
 
@@ -65,7 +88,7 @@ class AppContainer(
             .addInterceptor(SessionAuthorizationInterceptor(AuthRepositoryFactory.tokenProvider(sessionStore)))
             .also { configureLibraryTransport(application, it, BuildConfig.MOCK_AUTH, user.id) }
             .build()
-        LibraryRepositoryFactory.create(application, user.id, client, BuildConfig.AUTH_BASE_URL)
+        LibraryRepositoryFactory.create(application, user.id, client, BuildConfig.AUTH_BASE_URL, readerRepository(user))
     }
 
     private val bookRepositories = mutableMapOf<String, BookRepository>()
@@ -77,7 +100,7 @@ class AppContainer(
             .retryOnConnectionFailure(false)
             .addInterceptor(SessionAuthorizationInterceptor(AuthRepositoryFactory.tokenProvider(sessionStore)))
             .also { configureBookTransport(application, it, BuildConfig.MOCK_AUTH, user.id, user.fullName) }.build()
-        BookRepositoryFactory.create(client, BuildConfig.AUTH_BASE_URL)
+        ReaderAwareBookRepository(BookRepositoryFactory.create(client, BuildConfig.AUTH_BASE_URL), readerRepository(user))
     }
 
     fun profileRepository(user: AuthUser): ProfileRepository {

@@ -5,6 +5,7 @@ plugins {
 }
 android { namespace = "ru.mareanexx.user_library_impl" }
 dependencies {
+    implementation(project(":features:reader:reader-api"))
     implementation(project(":common:ui"))
     implementation(project(":features:user-library:user-library-api"))
     implementation(project(":features:book:book-api"))

@@ -9,6 +9,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":features:reader:reader-api"))
+    implementation(project(":features:reader:reader-impl"))
     implementation(project(":common:ui"))
     implementation(project(":features:book:book-api"))
     implementation(libs.androidx.lifecycle.runtime.compose)

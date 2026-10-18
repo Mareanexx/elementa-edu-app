@@ -179,10 +179,8 @@ class LibraryFlowTest {
     }
     @Test fun readerArrowReturnsDirectlyToLibraryAndBookBodyOpensDetails() {
         rule.onNodeWithTag("library_read_book_1").performClick()
-        waitTag("book_reader_entry")
-        rule.onNodeWithText("Начальная страница: 49").assertIsDisplayed()
-        assertEquals(48, currentBook().pagesRead)
-        button("Вернуться в библиотеку").performClick()
+        waitTag("reader_ready")
+        rule.onNodeWithTag("reader_close").performClick()
         waitTag("library_book_book_1")
         rule.onNodeWithTag("book_content").assertDoesNotExist()
         rule.onNodeWithTag("library_book_book_1").performClick()
@@ -199,7 +197,6 @@ class LibraryFlowTest {
         controls.edit().putInt("next_status", 503).commit()
         button("Прочитано").performClick()
         waitText("Сервис временно недоступен")
-        assertEquals(48, currentBook().pagesRead)
         button("Прочитано").performClick()
         waitText("Книга отмечена прочитанной")
         assertEquals(160, currentBook().pagesRead)

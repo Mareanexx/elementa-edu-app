@@ -1,5 +1,7 @@
 package ru.mareanexx.elementa.presentation.screen
 
+import ru.mareanexx.reader_api.domain.repository.ReaderRepository
+import ru.mareanexx.elementa.presentation.navigation.ReaderNotificationTarget
 import ru.mareanexx.catalog_api.domain.repository.CatalogRepository
 import ru.mareanexx.catalog_impl.presentation.HomeRoute
 import ru.mareanexx.book_api.domain.repository.BookRepository
@@ -47,6 +49,9 @@ internal fun SignedInContent(
     createBookRepository: (AuthUser) -> BookRepository,
     createLibraryRepository: (AuthUser) -> LibraryRepository,
     createCatalogRepository: (AuthUser) -> CatalogRepository,
+    createReaderRepository: (AuthUser) -> ReaderRepository,
+    readerNotification: ReaderNotificationTarget?,
+    onReaderNotificationConsumed: () -> Unit,
     onSessionExpired: () -> Unit,
     onSignOut: () -> Unit,
 ) {
@@ -55,6 +60,7 @@ internal fun SignedInContent(
     val bookRepository = remember(state.user.id) { createBookRepository(state.user) }
     val libraryRepository = remember(state.user.id) { createLibraryRepository(state.user) }
     val catalogRepository = remember(state.user.id) { createCatalogRepository(state.user) }
+    val readerRepository = remember(state.user.id) { createReaderRepository(state.user) }
     var collectionPickerBookId by rememberSaveable(state.user.id) { mutableStateOf<String?>(null) }
     val pickerSnackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -63,6 +69,13 @@ internal fun SignedInContent(
     var bookId by rememberSaveable(state.user.id) { mutableStateOf<String?>(null) }
     var libraryVersion by remember { mutableIntStateOf(0) }
     LaunchedEffect(libraryRepository) { libraryRepository.changes.collect { libraryVersion++ } }
+    LaunchedEffect(readerRepository) { readerRepository.changes.collect { libraryVersion++ } }
+    LaunchedEffect(readerNotification) {
+        readerNotification?.let { target ->
+            if (target.userId == state.user.id) { bookEntry = BookEntry.Reader; bookId = target.bookId }
+            onReaderNotificationConsumed()
+        }
+    }
     LaunchedEffect(bookRepository) { bookRepository.libraryChanges.collect { libraryVersion++ } }
     val settings by repository.settings.collectAsStateWithLifecycle(initialValue = AppSettings())
     var tab by rememberSaveable(state.user.id) { mutableStateOf(MainNavigationTabs.Home) }
@@ -142,7 +155,7 @@ internal fun SignedInContent(
                     }
                 }
             }
-            AnimatedContent(bookId, Modifier.fillMaxSize().safeDrawingPadding().clipToBounds(), transitionSpec = {
+            AnimatedContent(bookId, Modifier.fillMaxSize().clipToBounds(), transitionSpec = {
                 val forward = targetState != null
                 val duration = if (settings.reduceMotion) 0 else 360
                 ContentTransform(
@@ -152,7 +165,7 @@ internal fun SignedInContent(
                 )
             }, label = "Book entry") { selectedId ->
                 if (selectedId != null) Surface(Modifier.fillMaxSize(), color = backgroundMain) {
-                    BookRoute(selectedId, state.user.id, bookRepository, onClose = { bookId = null }, onSessionExpired = onSessionExpired, entry = bookEntry)
+                    BookRoute(selectedId, state.user.id, bookRepository, onClose = { bookId = null }, onSessionExpired = onSessionExpired, entry = bookEntry, readerRepository = readerRepository)
                 }
             }
             collectionPickerBookId?.let { selected ->
@@ -168,7 +181,7 @@ internal fun SignedInContent(
             SnackbarHost(pickerSnackbar, Modifier.align(Alignment.BottomCenter).padding(horizontal = 16.dp).padding(bottom = if (showBottomBar) 110.dp else 16.dp)) {
                 Snackbar(it, shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
             }
-            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().windowInsetsBottomHeight(WindowInsets.safeDrawing)
+            if (bookId == null) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().windowInsetsBottomHeight(WindowInsets.safeDrawing)
                 .background(if (bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Home, MainNavigationTabs.Profile, MainNavigationTabs.Collections))) navBackground else screenColor))
         }
     }

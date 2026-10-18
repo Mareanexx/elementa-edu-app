@@ -127,10 +127,8 @@ class BookFlowTest {
         assertEquals(underlyingScroll, rule.onNodeWithTag("book_content").fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value(), 1f)
         scrollBook(hasTestTag("book_read"))
         rule.onNodeWithTag("book_read").performClick()
-        waitTag("book_reader_entry")
-        rule.onNodeWithText("Начальная страница: 49").assertIsDisplayed()
-        assertEquals(48, book().pagesRead)
-        button("Вернуться к книге").performClick()
+        waitTag("reader_ready")
+        rule.onNodeWithTag("reader_close").performClick()
         waitTag("book_content")
     }
     @Test fun shelfChangesAreSharedAndFailuresKeepPreviousState() {

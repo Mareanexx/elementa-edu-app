@@ -1,5 +1,8 @@
 package ru.mareanexx.book_impl.presentation
 
+import ru.mareanexx.reader_api.domain.repository.ReaderRepository
+import ru.mareanexx.reader_impl.presentation.ReaderRoute
+import ru.mareanexx.reader_impl.presentation.components.BookDownloadAction
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -32,7 +35,11 @@ import ru.mareanexx.ui.components.feedback.SyncIndicator
 import ru.mareanexx.ui.theme.*
 
 @Composable
-fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClose: () -> Unit, onSessionExpired: () -> Unit, entry: BookEntry = BookEntry.Details) {
+fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClose: () -> Unit, onSessionExpired: () -> Unit, entry: BookEntry = BookEntry.Details, readerRepository: ReaderRepository) {
+    if (entry == BookEntry.Reader) {
+        ReaderRoute(bookId, userId, readerRepository, onClose)
+        return
+    }
     val model: BookViewModel = viewModel(key = "book_${userId}_${bookId}_${entry.name}", factory = viewModelFactory {
         initializer { BookViewModel(bookId, repository, if (entry == BookEntry.Reader) BookPage.Reader else BookPage.Detail) }
     })
@@ -86,7 +93,7 @@ fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClos
         model.accept(BookIntent.DismissNotice)
     }
     BackHandler { back() }
-    Scaffold(containerColor = backgroundMain, snackbarHost = { SnackbarHost(snackbar) { Snackbar(it, shape = RoundedCornerShape(16.dp)) } }) { padding ->
+    Scaffold(modifier = if (state.page == BookPage.Reader) Modifier else Modifier.safeDrawingPadding(), contentWindowInsets = WindowInsets(0, 0, 0, 0), containerColor = backgroundMain, snackbarHost = { SnackbarHost(snackbar) { Snackbar(it, shape = RoundedCornerShape(16.dp)) } }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AnimatedContent(state.page, Modifier.fillMaxSize().clipToBounds(), transitionSpec = {
                 val forward = targetState != BookPage.Detail && (initialState == BookPage.Detail || targetState == BookPage.Thread)
@@ -98,11 +105,10 @@ fun BookRoute(bookId: String, userId: String, repository: BookRepository, onClos
                 SideEffect { if (state.page == page) snapshot.value = state }
                 val shown = if (state.page == page) state else snapshot.value
                 when (page) {
-                    BookPage.Detail -> BookScreen(shown, model::accept) { isbn -> scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(strings.getString(R.string.book_isbn), isbn))); snackbar.showSnackbar(strings.getString(R.string.book_isbn_copied)) } }
+                    BookPage.Detail -> BookScreen(shown, model::accept, onCopyIsbn = { isbn -> scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(strings.getString(R.string.book_isbn), isbn))); snackbar.showSnackbar(strings.getString(R.string.book_isbn_copied)) } }, downloadAction = { BookDownloadAction(bookId, readerRepository) })
                     BookPage.Reviews -> ReviewsScreen(shown, model::accept)
                     BookPage.Thread -> ReviewThreadScreen(shown, model::accept)
-                    BookPage.Reader -> if (shown.book != null) ReaderEntryScreen(shown.book, returnToLibrary = entry == BookEntry.Reader) { back() }
-                        else BookScreen(shown, { if (it == BookIntent.Back) back() else model.accept(it) }, {})
+                    BookPage.Reader -> ReaderRoute(bookId, userId, readerRepository) { model.accept(BookIntent.Back); model.accept(BookIntent.Reload) }
                 }
             }
             SyncIndicator(visible = (state.refreshing || state.reviews.refreshing) && state.reviewDraft == null && state.collections == null && snackbar.currentSnackbarData == null,

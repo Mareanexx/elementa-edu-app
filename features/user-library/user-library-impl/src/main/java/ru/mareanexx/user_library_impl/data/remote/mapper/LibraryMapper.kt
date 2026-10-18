@@ -55,6 +55,7 @@ internal object LibraryMapper {
         LibrarySort.Author -> "author_asc"
     }
     fun category(category: LibraryCategory): String = when (category) {
+        LibraryCategory.Downloaded -> error("Скачанные книги читаются из локального хранилища")
         LibraryCategory.All -> "all"
         LibraryCategory.InProgress -> "in_progress"
         LibraryCategory.Completed -> "completed"

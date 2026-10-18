@@ -33,7 +33,7 @@ internal fun LibraryTabs(pager: PagerState, counts: LibraryCounts?, enabled: Boo
         if (reduce) list.scrollToItem((pager.targetPage - 1).coerceAtLeast(0))
         else list.animateScrollToItem((pager.targetPage - 1).coerceAtLeast(0))
     }
-    LazyRow(state = list, contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    LazyRow(modifier = Modifier.testTag("library_tabs"), state = list, contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         itemsIndexed(LibraryCategory.entries) { index, category ->
             val selected = pager.targetPage == index
             val color by animateColorAsState(if (selected) bodySecondary else authFieldBackground, tween(if (reduce) 0 else 180), label = "library_tab_color")

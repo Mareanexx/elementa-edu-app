@@ -98,4 +98,7 @@
     <string name="library_selected_sort">Выбрано</string>
     <string name="library_search_open">Открыть поиск</string>
     <string name="library_continue_short">Продолжить</string>
+    <string name="library_downloaded">Скачано</string>
+    <string name="library_empty_downloaded">Книги всегда под рукой</string>
+    <string name="library_empty_downloaded_hint">Нажми на загрузку на экране книги. Она появится здесь и будет доступна без интернета.</string>
 </resources>

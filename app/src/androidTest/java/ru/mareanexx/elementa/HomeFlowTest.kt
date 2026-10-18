@@ -77,9 +77,8 @@ class HomeFlowTest {
         val hero = rule.onNodeWithTag("home_continue").fetchSemanticsNode().boundsInRoot
         assertEquals(with(rule.density) { androidx.compose.ui.unit.Dp(16f).toPx() }, hero.left, 1f)
         rule.onNodeWithTag("home_read_book_1").performClick()
-        waitTag("book_reader_entry")
-        rule.onNodeWithText("Начальная страница: 49").assertIsDisplayed()
-        button("Вернуться в библиотеку").performClick(); waitTag("home_continue")
+        waitTag("reader_ready")
+        rule.onNodeWithTag("reader_close").performClick(); waitTag("home_continue")
         button("Моя библиотека").performClick(); waitTag("library_screen")
         button("Главная").performClick(); waitTag("home_continue")
         button("Мои коллекции").performClick(); waitText("Мои коллекции")
@@ -224,9 +223,8 @@ class HomeFlowTest {
         rule.onNodeWithTag("home_continue_position_${selected.id}").assertTextEquals("$number / 5").assertIsDisplayed()
         rule.onNodeWithTag("home_read_${selected.id}").assertIsDisplayed()
         capture("home-continue-carousel-selected")
-        rule.onNodeWithTag("home_read_${selected.id}").performClick(); waitTag("book_reader_entry")
-        rule.onNodeWithText("Начальная страница: ${selected.pagesRead + 1}").assertIsDisplayed()
-        button("Вернуться в библиотеку").performClick(); waitTag("home_continue_pager")
+        rule.onNodeWithTag("home_read_${selected.id}").performClick(); waitTag("reader_ready")
+        rule.onNodeWithTag("reader_close").performClick(); waitTag("home_continue_pager")
         rule.onNodeWithTag("home_continue_position_${selected.id}").assertIsDisplayed()
     }
 

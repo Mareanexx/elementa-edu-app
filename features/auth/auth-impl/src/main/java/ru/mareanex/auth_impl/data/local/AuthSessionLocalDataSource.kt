@@ -25,10 +25,10 @@ internal class AuthSessionLocalDataSource(
         } catch (_: RuntimeException) { null }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun accessToken(): String? = withContext(Dispatchers.IO) {
+    suspend fun accessToken(userId: String? = null): String? = withContext(Dispatchers.IO) {
         try {
             store.data.first()?.let { gson.fromJson(it, AuthSessionData::class.java) }
-                ?.takeIf { it.session.expiresAtMillis > now() }
+                ?.takeIf { it.session.expiresAtMillis > now() && (userId == null || it.session.user.id == userId) }
                 ?.accessToken?.takeIf { it.isNotBlank() }
         } catch (_: RuntimeException) {
             null

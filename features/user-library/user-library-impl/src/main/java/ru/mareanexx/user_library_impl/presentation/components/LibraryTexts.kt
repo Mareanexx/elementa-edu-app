@@ -11,6 +11,7 @@ internal fun categoryText(category: LibraryCategory): String = LocalResources.cu
     LibraryCategory.InProgress -> R.string.library_in_progress
     LibraryCategory.Completed -> R.string.library_completed
     LibraryCategory.WantToRead -> R.string.library_want
+    LibraryCategory.Downloaded -> R.string.library_downloaded
 })
 @Composable
 internal fun sortText(sort: LibrarySort): String = LocalResources.current.getString(when (sort) {
