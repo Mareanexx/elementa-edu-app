@@ -31,5 +31,10 @@ class CollectionRulesTest {
         assertEquals(listOf("fav", "a", "b"), OrderCollections.apply(items, CollectionsPreferences(showEmpty = false), true).map { it.id })
         assertEquals(listOf("a", "b", "v"), OrderCollections.apply(items, CollectionsPreferences(), false).map { it.id })
     }
+    @Test fun `системный список чтения закреплён и виден даже пустым`() {
+        val plan = BookCollection("plan", "Хочу прочитать", CollectionCover.Notes, 0, isReadingList = true)
+        assertEquals(listOf("fav", "plan", "a", "b"), OrderCollections.apply(items + plan, CollectionsPreferences(showEmpty = false), true).map { it.id })
+        assertEquals(listOf("a", "b"), OrderCollections.apply(items + plan, CollectionsPreferences(showEmpty = false), false).map { it.id })
+    }
     private fun order(sort: CollectionSort) = OrderCollections.apply(items, CollectionsPreferences(sort), true).map { it.id }
 }

@@ -17,8 +17,8 @@ internal object CollectionMapper {
     fun preferences(value: CollectionsPreferences) = CollectionPreferencesDto(sortKeys.getValue(value.sort), value.showEmpty)
     fun image(dto: CollectionImageDto) = CollectionImage(required(dto.id), required(dto.url))
     fun collection(dto: CollectionDto): BookCollection {
-        require(dto.kind in listOf("favorite", "custom"))
-        return BookCollection(required(dto.id), required(dto.name), cover(dto.coverKey), requireNotNull(dto.bookCount).also { require(it >= 0) }, dto.kind == "favorite", dto.image?.let(::image))
+        require(dto.kind in listOf("favorite", "reading_list", "custom"))
+        return BookCollection(required(dto.id), required(dto.name), cover(dto.coverKey), requireNotNull(dto.bookCount).also { require(it >= 0) }, dto.kind == "favorite", dto.image?.let(::image), dto.kind == "reading_list")
     }
     fun book(dto: CollectionBookDto) = CollectionBook(
         required(dto.id), required(dto.title), required(dto.authors), requireNotNull(dto.description),

@@ -7,4 +7,5 @@ internal data class DemoStoredCollection(
     val favorite: Boolean,
     val bookIds: List<String>,
     val coverImageId: String? = null,
+    val readingList: Boolean = false,
 )

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import ru.mareanexx.collections_impl.R
 import ru.mareanexx.collections_impl.presentation.CollectionsIntent
@@ -34,7 +35,7 @@ internal fun CollectionDetailScreen(state: CollectionsUiState, onIntent: (Collec
             }
         }
         if (state.booksLoading) CollectionsSkeleton(books = true)
-        else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        else LazyColumn(Modifier.fillMaxSize().testTag("collection_books_list"), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CollectionCoverImage(item?.cover ?: ru.mareanexx.collections_api.domain.model.CollectionCover.Chemistry, item?.image, Modifier.size(64.dp).clip(RoundedCornerShape(16.dp)))
@@ -55,7 +56,7 @@ internal fun CollectionDetailScreen(state: CollectionsUiState, onIntent: (Collec
             }
             itemsIndexed(state.books, key = { _, book -> book.id }) { index, book ->
                 Column(if (reduceMotion) Modifier else Modifier.animateItem()) {
-                    CollectionBookCard(book, enabled = !state.busy, onOpenBook = {}, onRemove = { onIntent(CollectionsIntent.RemoveBook(book.id)) }, onSwipeRemove = { onIntent(CollectionsIntent.SwipeRemoveBook(book.id)) })
+                    CollectionBookCard(book, enabled = !state.busy, onOpenBook = { onIntent(CollectionsIntent.OpenBook(book.id)) }, onRemove = { onIntent(CollectionsIntent.RemoveBook(book.id)) }, onSwipeRemove = { onIntent(CollectionsIntent.SwipeRemoveBook(book.id)) })
                     if (index < state.books.lastIndex) HorizontalDivider(Modifier.padding(top = 12.dp), color = titleMain.copy(alpha = .08f))
                 }
             }

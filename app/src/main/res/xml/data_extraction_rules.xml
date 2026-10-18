@@ -6,6 +6,8 @@
         <exclude domain="sharedpref" path="auth_demo_accounts.xml" />
         <exclude domain="sharedpref" path="profile_demo_server.xml" />
         <exclude domain="sharedpref" path="collections_demo_server.xml" />
+        <exclude domain="sharedpref" path="book_demo_server.xml" />
+        <exclude domain="sharedpref" path="book_rating_mock_cache.xml" />
         <exclude domain="file" path="demo_avatars/" />
         <exclude domain="file" path="demo_collection_covers/" />
     </cloud-backup>
@@ -14,6 +16,8 @@
         <exclude domain="sharedpref" path="auth_demo_accounts.xml" />
         <exclude domain="sharedpref" path="profile_demo_server.xml" />
         <exclude domain="sharedpref" path="collections_demo_server.xml" />
+        <exclude domain="sharedpref" path="book_demo_server.xml" />
+        <exclude domain="sharedpref" path="book_rating_mock_cache.xml" />
         <exclude domain="file" path="demo_avatars/" />
         <exclude domain="file" path="demo_collection_covers/" />
     </device-transfer>

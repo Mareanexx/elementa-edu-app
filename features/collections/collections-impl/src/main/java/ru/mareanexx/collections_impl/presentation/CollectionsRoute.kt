@@ -43,9 +43,19 @@ fun CollectionsRoute(
     onSessionExpired: () -> Unit,
     onRootScreenChanged: (Boolean) -> Unit,
     onScreenColorChanged: (Color) -> Unit,
+    onOpenBook: (String) -> Unit = {},
+    refreshVersion: Int = 0,
 ) {
     val model: CollectionsViewModel = viewModel(key = "collections_$userId", factory = viewModelFactory { initializer { CollectionsViewModel(repository) } })
     val state by model.state.collectAsStateWithLifecycle()
+    val latestOpenBook by rememberUpdatedState(onOpenBook)
+    LaunchedEffect(model) { model.effects.collect { effect -> if (effect is CollectionsEffect.OpenBook) latestOpenBook(effect.id) } }
+    LaunchedEffect(refreshVersion) {
+        if (refreshVersion > 0) {
+            model.accept(CollectionsIntent.Reload)
+            if (model.state.value.selectedId != null) model.accept(CollectionsIntent.ReloadBooks)
+        }
+    }
     val strings = LocalResources.current
     val preferences = LocalAppUiPreferences.current
     val snackbar = remember { SnackbarHostState() }

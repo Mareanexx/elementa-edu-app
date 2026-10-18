@@ -1,5 +1,8 @@
 package ru.mareanexx.elementa.presentation.screen
 
+import ru.mareanexx.book_api.domain.repository.BookRepository
+import ru.mareanexx.book_impl.presentation.BookRoute
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import ru.mareanexx.collections_api.domain.repository.CollectionsRepository
 import ru.mareanexx.collections_impl.presentation.CollectionsRoute
 import androidx.activity.compose.BackHandler
@@ -11,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
@@ -33,11 +37,16 @@ internal fun SignedInContent(
     state: SessionState.SignedIn,
     createRepository: (AuthUser) -> ProfileRepository,
     createCollectionsRepository: (AuthUser) -> CollectionsRepository,
+    createBookRepository: (AuthUser) -> BookRepository,
     onSessionExpired: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     val repository = remember(state.user.id) { createRepository(state.user) }
     val collectionsRepository = remember(state.user.id) { createCollectionsRepository(state.user) }
+    val bookRepository = remember(state.user.id) { createBookRepository(state.user) }
+    var bookId by rememberSaveable(state.user.id) { mutableStateOf<String?>(null) }
+    var libraryVersion by remember { mutableIntStateOf(0) }
+    LaunchedEffect(bookRepository) { bookRepository.libraryChanges.collect { libraryVersion++ } }
     val settings by repository.settings.collectAsStateWithLifecycle(initialValue = AppSettings())
     var tab by rememberSaveable(state.user.id) { mutableStateOf(MainNavigationTabs.Home) }
     var showBottomBar by rememberSaveable { mutableStateOf(true) }
@@ -56,18 +65,18 @@ internal fun SignedInContent(
         LocalDensity provides Density(density.density, density.fontScale * settings.textScale),
         LocalAppUiPreferences provides AppUiPreferences(settings.reduceMotion, settings.hapticFeedback),
     ) {
-        val screenColor = when (tab) {
+        val screenColor = if (bookId != null) backgroundMain else when (tab) {
             MainNavigationTabs.Profile -> profileScreenColor
             MainNavigationTabs.Collections -> collectionsScreenColor
             else -> backgroundMain
         }
         Box(Modifier.fillMaxSize().background(screenColor)) {
             Scaffold(
-                modifier = Modifier.safeDrawingPadding(),
+                modifier = Modifier.safeDrawingPadding().then(if (bookId != null) Modifier.clearAndSetSemantics {} else Modifier),
                 containerColor = backgroundMain,
                 bottomBar = {
                     AnimatedVisibility(
-                        visible = showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections),
+                        visible = bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections)),
                         enter = expandVertically(tween(if (settings.reduceMotion) 0 else 460), expandFrom = Alignment.Bottom),
                         exit = shrinkVertically(tween(if (settings.reduceMotion) 0 else 460), shrinkTowards = Alignment.Bottom),
                     ) {
@@ -92,12 +101,27 @@ internal fun SignedInContent(
                             collectionsRepository, state.user.id, onSessionExpired,
                             onRootScreenChanged = { showBottomBar = it },
                             onScreenColorChanged = { collectionsScreenColor = it },
+                            onOpenBook = { bookId = it },
+                            refreshVersion = libraryVersion,
                         )
                     }
                 }
             }
+            AnimatedContent(bookId, Modifier.fillMaxSize().safeDrawingPadding().clipToBounds(), transitionSpec = {
+                val forward = targetState != null
+                val duration = if (settings.reduceMotion) 0 else 360
+                ContentTransform(
+                    if (forward) slideInHorizontally(tween(duration)) { it } else EnterTransition.None,
+                    if (!forward) slideOutHorizontally(tween(duration)) { it } else ExitTransition.None,
+                    targetContentZIndex = if (forward) 1f else -1f, sizeTransform = null,
+                )
+            }, label = "Book entry") { selectedId ->
+                if (selectedId != null) Surface(Modifier.fillMaxSize(), color = backgroundMain) {
+                    BookRoute(selectedId, state.user.id, bookRepository, onClose = { bookId = null }, onSessionExpired = onSessionExpired)
+                }
+            }
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().windowInsetsBottomHeight(WindowInsets.safeDrawing)
-                .background(if (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections)) navBackground else screenColor))
+                .background(if (bookId == null && (showBottomBar || tab !in listOf(MainNavigationTabs.Profile, MainNavigationTabs.Collections))) navBackground else screenColor))
         }
     }
 }

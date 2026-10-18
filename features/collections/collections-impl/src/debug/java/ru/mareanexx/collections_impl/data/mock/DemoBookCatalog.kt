@@ -5,6 +5,14 @@ import ru.mareanexx.collections_impl.R
 
 /** Данные демонстрационной библиотеки имитируют содержимое ответа сервера. */
 internal object DemoBookCatalog {
+    fun books(context: android.content.Context): List<CollectionBookDto> {
+        val ratings = context.getSharedPreferences("book_rating_mock_cache", android.content.Context.MODE_PRIVATE)
+        return items.map { book ->
+            val cached = ratings.getString(book.id, null)?.let { runCatching { com.google.gson.Gson().fromJson(it, BookRatingDto::class.java) }.getOrNull() }
+            if (cached == null) book else book.copy(rating = cached)
+        }
+    }
+
     private val titles = listOf(
         "Органическая химия", "Основы биохимии", "Квантовая химия", "Химическая термодинамика",
         "Периодический закон", "Неорганическая химия", "Лабораторный практикум", "Реакции и механизмы",

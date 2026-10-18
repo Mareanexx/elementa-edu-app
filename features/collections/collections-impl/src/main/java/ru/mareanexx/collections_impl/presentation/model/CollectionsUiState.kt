@@ -30,5 +30,5 @@ data class CollectionsUiState(
     val noticeVersion: Long = 0,
 ) {
     val selected: BookCollection? get() = items.firstOrNull { it.id == selectedId }
-    val customCount: Int get() = items.count { !it.isFavorite }
+    val customCount: Int get() = items.count { !it.isSystem }
 }

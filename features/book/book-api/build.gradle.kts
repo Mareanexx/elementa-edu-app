@@ -1,12 +1,9 @@
 plugins {
-    id("android-feature-convention")
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.jetbrains.kotlin.jvm)
+    `java-library`
 }
-
-android {
-    namespace = "ru.mareanexx.book_api"
-}
-
+kotlin { jvmToolchain(17) }
 dependencies {
+    api(libs.kotlinx.coroutines.core)
+    testImplementation(libs.junit)
 }

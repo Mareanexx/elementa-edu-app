@@ -49,6 +49,9 @@ internal fun CollectionsScreen(state: CollectionsUiState, all: Boolean, onIntent
                 state.items.firstOrNull { it.isFavorite }?.let { favorite ->
                     item(key = "favorite", span = { GridItemSpan(2) }) { FavoriteCollectionCard(favorite) { onIntent(CollectionsIntent.OpenCollection(favorite.id)) } }
                 }
+                state.items.firstOrNull { it.isReadingList }?.let { planned ->
+                    item(key = "reading-list", span = { GridItemSpan(2) }) { ReadingListCollectionCard(planned) { onIntent(CollectionsIntent.OpenCollection(planned.id)) } }
+                }
                 item(key = "header", span = { GridItemSpan(2) }) {
                     Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

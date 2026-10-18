@@ -130,7 +130,9 @@ class CollectionsFlowTest {
         assertEquals(CollectionCover.Space, created.cover)
         assertEquals(1, created.bookCount)
         rule.onNodeWithTag("collection_book_open_book_1").performClick()
-        rule.onNodeWithText("Закрыть").assertDoesNotExist()
+        waitTag("book_content")
+        rule.onNodeWithContentDescription("Назад").performClick()
+        waitTag("collection_book_open_book_1")
         rule.onNodeWithContentDescription("Действия с книгой «Органическая химия»").performClick()
         button("Убрать из коллекции").performClick()
         button("Убрать").performClick()
@@ -179,8 +181,10 @@ class CollectionsFlowTest {
         waitTag("collection_c7")
         val favorite = rule.onNodeWithTag("collection_favorites").fetchSemanticsNode().boundsInRoot
         val most = rule.onNodeWithTag("collection_c7").fetchSemanticsNode().boundsInRoot
-        assertEquals(favorite.top, most.top, 1f)
-        assertTrue(favorite.left < most.left)
+        val planned = rule.onNodeWithTag("collection_reading-list").fetchSemanticsNode().boundsInRoot
+        assertEquals(favorite.top, planned.top, 1f)
+        assertTrue(favorite.left < planned.left)
+        assertTrue(most.top > favorite.top)
         rule.onNodeWithContentDescription("Назад").performClick()
         rule.onNodeWithContentDescription("Настройки коллекций").performClick()
         rule.onAllNodes(isToggleable()).onFirst().performClick()
@@ -235,6 +239,8 @@ class CollectionsFlowTest {
     @Test fun backendProtectsFavoriteDeduplicatesBooksAndEnforcesThirtyCollections() {
         assertEquals(CollectionsResult.Failure(CollectionsError.Protected), runBlocking { repository.delete("favorites") })
         assertEquals(CollectionsResult.Failure(CollectionsError.Protected), runBlocking { repository.update("favorites", CollectionForm("Иное")) })
+        assertEquals(CollectionsResult.Failure(CollectionsError.Protected), runBlocking { repository.delete("reading-list") })
+        assertEquals(CollectionsResult.Failure(CollectionsError.Protected), runBlocking { repository.update("reading-list", CollectionForm("Иное")) })
         assertEquals(CollectionsResult.Success(Unit), runBlocking { repository.addBooks("favorites", setOf("book_1")) })
         assertEquals(1, (runBlocking { repository.getBooks("favorites") } as CollectionsResult.Success).value.size)
         fixture(30)
@@ -258,7 +264,9 @@ class CollectionsFlowTest {
         assertTrue(open.fetchSemanticsNode().boundsInRoot.bottom < tags.fetchSemanticsNode().boundsInRoot.top)
         rule.onNodeWithText("48 из 160 стр.", useUnmergedTree = true).assertIsDisplayed()
         open.performClick()
-        rule.onNodeWithText("Закрыть").assertDoesNotExist()
+        waitTag("book_content")
+        rule.onNodeWithContentDescription("Назад").performClick()
+        waitTag("collection_book_open_book_1")
         rule.onNodeWithTag("collection_book_book_1").assertHasNoClickAction()
         tags.performTouchInput { swipeLeft() }
         rule.onNodeWithTag("collection_book_book_1").assertExists()

@@ -9,6 +9,8 @@
     <string name="collections_new_card_hint">Для новой темы</string>
     <string name="collections_all_title">Все коллекции</string>
     <string name="collections_favorite">Избранное</string>
+    <string name="collections_reading_list">Хочу прочитать</string>
+    <string name="collections_reading_list_hint">Твои планы на следующие открытия</string>
     <string name="collections_open">Открыть</string>
     <string name="collections_show_all">Показать все</string>
     <string name="collections_add">Создать коллекцию</string>

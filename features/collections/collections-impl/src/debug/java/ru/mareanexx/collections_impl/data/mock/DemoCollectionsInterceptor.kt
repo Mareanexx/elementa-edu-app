@@ -13,7 +13,7 @@ import java.io.IOException
 import java.util.UUID
 
 internal class DemoCollectionsInterceptor(
-    context: Context,
+    private val context: Context,
     userId: String,
 ) : Interceptor {
     private val covers = DemoCollectionCoverStore(context, userId)
@@ -60,19 +60,19 @@ internal class DemoCollectionsInterceptor(
             }
             return error(request, 405, "METHOD_NOT_ALLOWED")
         }
-        if (path == "/api/v1/users/me/library/books") return json(request, 200, CollectionBooksResponse(DemoBookCatalog.items))
+        if (path == "/api/v1/users/me/library/books") return json(request, 200, CollectionBooksResponse(DemoBookCatalog.books(context)))
         val records = store.read()
         val parts = path.removePrefix(base).trim('/').split('/').filter(String::isNotEmpty)
         val current = parts.firstOrNull()?.let { id -> records.firstOrNull { it.id == id } }
         if (parts.isNotEmpty() && current == null) return error(request, 404, "COLLECTION_NOT_FOUND")
         if (parts.isEmpty() && request.method == "GET") return json(request, 200, CollectionsResponse(records.map(::dto)))
         if (parts.isEmpty() && request.method == "POST" || parts.size == 1 && request.method == "PATCH") {
-            if (current?.favorite == true) return error(request, 403, "COLLECTION_PROTECTED")
+            if (current?.let { it.favorite || it.readingList } == true) return error(request, 403, "COLLECTION_PROTECTED")
             val form = runCatching { gson.fromJson(body(request), SaveCollectionRequest::class.java) }.getOrNull() ?: return error(request, 422, "NAME_REQUIRED")
             val name = CollectionRules.normalize(form.name.orEmpty())
             CollectionRules.validate(name)?.let { return error(request, 422, if (it == CollectionsError.NameRequired) "NAME_REQUIRED" else "NAME_TOO_LONG") }
             if (records.any { it.id != current?.id && it.name.equals(name, ignoreCase = true) }) return error(request, 409, "NAME_TAKEN")
-            if (current == null && records.count { !it.favorite } >= CollectionRules.MAX_COLLECTIONS) return error(request, 409, "COLLECTION_LIMIT_REACHED")
+            if (current == null && records.count { !it.favorite && !it.readingList } >= CollectionRules.MAX_COLLECTIONS) return error(request, 409, "COLLECTION_LIMIT_REACHED")
             if (form.coverKey !in listOf("chemistry", "molecules", "reactions", "laboratory", "notes", "space")) return error(request, 422, "INVALID_COVER")
             if (form.imageId != null && covers.get(form.imageId) == null) return error(request, 422, "INVALID_COVER_IMAGE")
             val item = DemoStoredCollection(current?.id ?: UUID.randomUUID().toString(), name, requireNotNull(form.coverKey), false, current?.bookIds ?: emptyList(), form.imageId)
@@ -80,13 +80,13 @@ internal class DemoCollectionsInterceptor(
             return json(request, if (current == null) 201 else 200, dto(item))
         }
         if (parts.size == 1 && request.method == "DELETE") {
-            if (current!!.favorite) return error(request, 403, "COLLECTION_PROTECTED")
+            if (current!!.favorite || current.readingList) return error(request, 403, "COLLECTION_PROTECTED")
             store.save(records.filter { it.id != current.id })
             return json(request, 204, null)
         }
         if (parts.getOrNull(1) == "books") {
             val collection = requireNotNull(current)
-            if (parts.size == 2 && request.method == "GET") return json(request, 200, CollectionBooksResponse(collection.bookIds.map { id -> DemoBookCatalog.items.first { it.id == id } }))
+            if (parts.size == 2 && request.method == "GET") return json(request, 200, CollectionBooksResponse(collection.bookIds.map { id -> DemoBookCatalog.books(context).first { it.id == id } }))
             if (parts.size == 2 && request.method == "POST") {
                 val ids = runCatching { gson.fromJson(body(request), CollectionBooksRequest::class.java).bookIds }.getOrNull()
                     ?: return error(request, 422, "INVALID_BOOKS")
@@ -102,7 +102,7 @@ internal class DemoCollectionsInterceptor(
         }
         return error(request, 405, "METHOD_NOT_ALLOWED")
     }
-    private fun dto(item: DemoStoredCollection) = CollectionDto(item.id, item.name, item.coverKey, item.bookIds.size, if (item.favorite) "favorite" else "custom", covers.get(item.coverImageId))
+    private fun dto(item: DemoStoredCollection) = CollectionDto(item.id, item.name, item.coverKey, item.bookIds.size, if (item.favorite) "favorite" else if (item.readingList) "reading_list" else "custom", covers.get(item.coverImageId))
     private fun body(request: Request) = Buffer().also { request.body?.writeTo(it) }.readUtf8()
     private fun error(request: Request, status: Int, code: String) = json(request, status, mapOf("error" to mapOf("code" to code)))
     private fun json(request: Request, status: Int, value: Any?) = Response.Builder().request(request).protocol(Protocol.HTTP_1_1)

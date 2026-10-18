@@ -7,4 +7,7 @@ data class BookCollection(
     val bookCount: Int,
     val isFavorite: Boolean = false,
     val image: CollectionImage? = null,
-)
+    val isReadingList: Boolean = false,
+) {
+    val isSystem: Boolean get() = isFavorite || isReadingList
+}

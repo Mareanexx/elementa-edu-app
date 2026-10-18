@@ -3,6 +3,9 @@ package ru.mareanexx.collections_impl.presentation
 import ru.mareanexx.collections_api.domain.model.*
 
 sealed interface CollectionsIntent {
+    data class OpenBook(
+        val id: String,
+    ) : CollectionsIntent
     data object SessionExpired : CollectionsIntent
     data object Reload : CollectionsIntent
     data object OpenAll : CollectionsIntent

@@ -14,7 +14,7 @@ object OrderCollections {
             CollectionSort.BooksDescending -> compareByDescending<BookCollection> { it.bookCount }.then(byName)
             CollectionSort.BooksAscending -> compareBy<BookCollection> { it.bookCount }.then(byName)
         }
-        val custom = items.filter { !it.isFavorite && (preferences.showEmpty || it.bookCount > 0) }.sortedWith(comparator)
-        return (if (includeFavorite) items.filter { it.isFavorite } else emptyList()) + custom
+        val custom = items.filter { !it.isSystem && (preferences.showEmpty || it.bookCount > 0) }.sortedWith(comparator)
+        return (if (includeFavorite) items.filter { it.isFavorite } + items.filter { it.isReadingList } else emptyList()) + custom
     }
 }

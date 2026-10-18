@@ -3,6 +3,7 @@ package ru.mareanexx.collections_impl.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.mareanexx.collections_api.domain.model.*
@@ -16,6 +17,8 @@ class CollectionsViewModel(
 ) : ViewModel() {
     private val mutable = MutableStateFlow(CollectionsUiState())
     val state = mutable.asStateFlow()
+    private val events = Channel<CollectionsEffect>(Channel.BUFFERED)
+    val effects = events.receiveAsFlow()
     private var listJob: Job? = null
     private var booksJob: Job? = null
     private var pickerJob: Job? = null
@@ -38,6 +41,7 @@ class CollectionsViewModel(
         if (current.busy && intent != CollectionsIntent.DismissNotice) return
         if (current.editor?.coverBusy == true && intent !is CollectionsIntent.UploadCover && intent != CollectionsIntent.CoverImportFailed && intent != CollectionsIntent.DismissNotice) return
         when (intent) {
+            is CollectionsIntent.OpenBook -> if (current.books.any { it.id == intent.id }) events.trySend(CollectionsEffect.OpenBook(intent.id))
             CollectionsIntent.SessionExpired -> Unit
             CollectionsIntent.Reload -> if (!current.loading && !current.refreshing) load()
             CollectionsIntent.OpenAll -> mutable.update { it.copy(page = CollectionsPage.All) }
@@ -51,12 +55,12 @@ class CollectionsViewModel(
             }
             CollectionsIntent.Create -> if (current.customCount >= CollectionRules.MAX_COLLECTIONS) mutable.update { it.copy(notice = CollectionsNotice.LimitReached, noticeVersion = it.noticeVersion + 1) }
                 else mutable.update { it.copy(editor = CollectionEditorState()) }
-            is CollectionsIntent.Edit -> current.items.firstOrNull { it.id == intent.id && !it.isFavorite }?.let { item -> mutable.update { it.copy(editor = CollectionEditorState(item.id, CollectionForm(item.name, item.cover, item.image))) } }
+            is CollectionsIntent.Edit -> current.items.firstOrNull { it.id == intent.id && !it.isSystem }?.let { item -> mutable.update { it.copy(editor = CollectionEditorState(item.id, CollectionForm(item.name, item.cover, item.image))) } }
             is CollectionsIntent.ChangeName -> mutable.update { it.copy(editor = it.editor?.copy(form = it.editor.form.copy(name = intent.value), fieldError = null, requestError = null)) }
             is CollectionsIntent.ChangeCover -> mutable.update { it.copy(editor = it.editor?.copy(form = it.editor.form.copy(cover = intent.value, image = null), requestError = null)) }
             CollectionsIntent.Save -> save()
             CollectionsIntent.DismissEditor -> mutable.update { it.copy(editor = null) }
-            is CollectionsIntent.Delete -> if (current.items.any { it.id == intent.id && !it.isFavorite }) mutable.update { it.copy(deleteId = intent.id, operationError = null) }
+            is CollectionsIntent.Delete -> if (current.items.any { it.id == intent.id && !it.isSystem }) mutable.update { it.copy(deleteId = intent.id, operationError = null) }
             CollectionsIntent.ConfirmDelete -> delete()
             CollectionsIntent.DismissDelete -> mutable.update { it.copy(deleteId = null, operationError = null) }
             CollectionsIntent.OpenSettings -> mutable.update { it.copy(settingsOpen = true) }

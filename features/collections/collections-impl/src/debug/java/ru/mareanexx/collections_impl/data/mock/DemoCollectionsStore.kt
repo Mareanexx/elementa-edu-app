@@ -20,7 +20,10 @@ internal class DemoCollectionsStore(
     }
     fun read(): List<DemoStoredCollection> {
         val json = store.getString(key, null)
-        if (json != null) return requireNotNull(gson.fromJson(json, Array<DemoStoredCollection>::class.java)).toList()
+        if (json != null) {
+            val records = requireNotNull(gson.fromJson(json, Array<DemoStoredCollection>::class.java)).toList()
+            return withReadingList(records)
+        }
         val demo = userId == "demo-chemist"
         val favorites = DemoStoredCollection("favorites", "Избранное", "chemistry", true, if (demo) listOf("book_1", "book_2", "book_4", "book_7") else emptyList())
         val custom = if (!demo) emptyList() else listOf(
@@ -31,7 +34,11 @@ internal class DemoCollectionsStore(
             DemoStoredCollection("exam", "Подготовка к экзамену", "notes", false, emptyList()),
             DemoStoredCollection("discoveries", "Мои открытия", "reactions", false, listOf("book_9")),
         )
-        return (listOf(favorites) + custom).also(::save)
+        return withReadingList(listOf(favorites) + custom)
+    }
+    private fun withReadingList(items: List<DemoStoredCollection>): List<DemoStoredCollection> {
+        if (items.any { it.readingList }) return items
+        return (items + DemoStoredCollection("reading-list", "Хочу прочитать", "notes", false, emptyList(), readingList = true)).also(::save)
     }
     fun save(items: List<DemoStoredCollection>) {
         if (!store.edit().putString(key, gson.toJson(items)).commit()) throw IOException("Не удалось сохранить демонстрационные коллекции")

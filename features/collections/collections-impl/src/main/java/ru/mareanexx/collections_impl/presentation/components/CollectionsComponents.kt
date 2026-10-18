@@ -68,7 +68,11 @@ internal fun CollectionsErrorCard(error: CollectionsError, retry: (() -> Unit)? 
 }
 
 @Composable
-internal fun collectionTitle(item: BookCollection): String = if (item.isFavorite) LocalResources.current.getString(R.string.collections_favorite) else item.name
+internal fun collectionTitle(item: BookCollection): String = when {
+    item.isFavorite -> LocalResources.current.getString(R.string.collections_favorite)
+    item.isReadingList -> LocalResources.current.getString(R.string.collections_reading_list)
+    else -> item.name
+}
 
 @Composable
 internal fun bookCount(number: Int): String {

@@ -71,8 +71,9 @@ internal fun CollectionCard(item: BookCollection, onIntent: (CollectionsIntent) 
         Column {
             Box(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)) {
                 CollectionCoverImage(item.cover, item.image, Modifier.fillMaxWidth().height(112.dp).clip(RoundedCornerShape(16.dp)))
-                if (item.isFavorite) Surface(Modifier.padding(8.dp), shape = RoundedCornerShape(10.dp), color = Color.White.copy(alpha = .92f)) {
-                    Icon(painterResource(CommonR.drawable.star_filled_icon), null, Modifier.padding(6.dp).size(20.dp), tint = Color(0xFFB88936))
+                if (item.isSystem) Surface(Modifier.padding(8.dp), shape = RoundedCornerShape(10.dp), color = Color.White.copy(alpha = .92f)) {
+                    Icon(painterResource(if (item.isFavorite) CommonR.drawable.star_filled_icon else CommonR.drawable.bookmark_icon), null,
+                        Modifier.padding(6.dp).size(20.dp), tint = if (item.isFavorite) Color(0xFFB88936) else bodySecondary)
                 } else Box(Modifier.align(Alignment.TopEnd)) {
                     IconButton({ menu = true }, Modifier.size(44.dp)) {
                         Surface(shape = RoundedCornerShape(10.dp), color = backgroundSecondary.copy(alpha = .94f)) {
@@ -92,6 +93,23 @@ internal fun CollectionCard(item: BookCollection, onIntent: (CollectionsIntent) 
                 Text(bookCount(item.bookCount), Modifier.padding(top = 3.dp), style = MaterialTheme.typography.labelSmall,
                     fontSize = 11.sp, lineHeight = 14.sp, maxLines = 1, color = username)
             }
+        }
+    }
+}
+
+@Composable
+internal fun ReadingListCollectionCard(item: BookCollection, onClick: () -> Unit) {
+    Surface(shape = RoundedCornerShape(20.dp), color = backgroundSecondary,
+        modifier = Modifier.fillMaxWidth().testTag("collection_${item.id}").collectionPress(onClick)) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(shape = RoundedCornerShape(12.dp), color = bodySecondary.copy(alpha = .09f)) {
+                Icon(painterResource(CommonR.drawable.bookmark_icon), null, Modifier.padding(10.dp).size(22.dp), tint = bodySecondary)
+            }
+            Column(Modifier.weight(1f)) {
+                Text(collectionTitle(item), style = MaterialTheme.typography.displaySmall, color = titleMain)
+                Text(bookCount(item.bookCount), Modifier.padding(top = 3.dp), style = MaterialTheme.typography.labelSmall, color = username)
+            }
+            Icon(painterResource(CommonR.drawable.keyboard_arrow_right_icon), null, Modifier.size(22.dp), tint = bodySecondary)
         }
     }
 }
